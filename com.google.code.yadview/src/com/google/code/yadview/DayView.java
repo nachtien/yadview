@@ -78,8 +78,9 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
+import com.google.code.yadview.impl.DefaultEventLoader;
+import com.google.code.yadview.impl.DefaultUtilFactory;
 import com.google.code.yadview.util.TimeZoneUtils;
-import com.google.code.yadview.util.UtilFactory;
 import com.google.common.eventbus.EventBus;
 
 import java.util.ArrayList;
@@ -195,8 +196,8 @@ public class DayView extends View implements View.OnCreateContextMenuListener,
     protected static Formatter mFormatter = new Formatter(mStringBuilder, Locale.getDefault());
 
     private EventBus mEventBus = new EventBus(); 
-    private DavViewResources mDayViewResources;
-    private final UtilFactory mUtilFactory;
+    private DayViewResources mDayViewResources;
+    private final DefaultUtilFactory mUtilFactory;
 
     public static final String KEY_DEFAULT_CELL_HEIGHT = "preferences_default_cell_height";
 
@@ -361,7 +362,7 @@ public class DayView extends View implements View.OnCreateContextMenuListener,
 
     private boolean mRemeasure = true;
 
-    private final EventLoader mEventLoader;
+    private final DefaultEventLoader mEventLoader;
     protected final EventGeometry mEventGeometry;
 
     private static final float GRID_LINE_INNER_WIDTH = 1;
@@ -575,8 +576,8 @@ public class DayView extends View implements View.OnCreateContextMenuListener,
     private boolean mTouchExplorationEnabled = false;
 
     public DayView(Context context, DayViewModel controller,
-            ViewSwitcher viewSwitcher, EventLoader eventLoader, int numDays,
-            UtilFactory utilFactory, DavViewResources resources) {
+            ViewSwitcher viewSwitcher, DefaultEventLoader eventLoader, int numDays,
+            DefaultUtilFactory utilFactory, DayViewResources resources) {
         super(context);
         mContext = context;
         mUtilFactory = utilFactory;
