@@ -1,5 +1,9 @@
 package com.google.code.yadview.util;
 
+import java.util.Formatter;
+import java.util.HashSet;
+import java.util.Locale;
+
 import android.content.AsyncQueryHandler;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -11,12 +15,6 @@ import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.format.Time;
 import android.util.Log;
-
-
-
-import java.util.Formatter;
-import java.util.HashSet;
-import java.util.Locale;
 
 /**
  * This class contains methods specific to reading and writing time zone

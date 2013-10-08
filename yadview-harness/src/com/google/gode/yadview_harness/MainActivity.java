@@ -6,18 +6,14 @@ import android.text.format.Time;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.Toast;
 import android.widget.ViewSwitcher;
 import android.widget.ViewSwitcher.ViewFactory;
 
 import com.google.code.yadview.DayView;
-import com.google.code.yadview.MockEventResource;
-import com.google.code.yadview.ViewEventEvent;
 import com.google.code.yadview.impl.DefaultDayViewModel;
 import com.google.code.yadview.impl.DefaultDayViewResources;
 import com.google.code.yadview.impl.DefaultEventLoader;
 import com.google.code.yadview.impl.DefaultUtilFactory;
-import com.google.common.eventbus.Subscribe;
 
 public class MainActivity extends Activity implements ViewFactory {
 
@@ -32,9 +28,7 @@ public class MainActivity extends Activity implements ViewFactory {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		
 		ViewSwitcher vs = (ViewSwitcher)findViewById(R.id.view_switcher);
-		
 		vs.setFactory(this);
 		
 	}
@@ -43,6 +37,7 @@ public class MainActivity extends Activity implements ViewFactory {
 	protected void onResume() {
 		super.onResume();
 		mEventLoader.startBackgroundThread();
+		
 	}
 	
 	@Override
@@ -61,7 +56,9 @@ public class MainActivity extends Activity implements ViewFactory {
 	@Override
 	public View makeView() {
 		ViewSwitcher vs = (ViewSwitcher)findViewById(R.id.view_switcher);
-		DayView dv = new DayView(this, new DefaultDayViewModel(), vs, mEventLoader, 1, new DefaultUtilFactory("yadview_harness.prefs"), new DefaultDayViewResources(this));
+		DefaultDayViewResources resources = new DefaultDayViewResources(this);
+		DefaultUtilFactory utilFactory = new DefaultUtilFactory("yadview_harness.prefs");
+		DayView dv = new DayView(this, new DefaultDayViewModel(), vs, mEventLoader, 1, utilFactory, resources);
 		
 		
 		dv.getEventBus().register(this);
@@ -73,6 +70,10 @@ public class MainActivity extends Activity implements ViewFactory {
         dv.setSelected(today, false, false);
         dv.clearCachedEvents();
         dv.reloadEvents();
+        
+        
+        dv.setEventRenderer(new AlternateEventRenderer(this, resources,utilFactory));
+        
         
 		return dv;
 	}

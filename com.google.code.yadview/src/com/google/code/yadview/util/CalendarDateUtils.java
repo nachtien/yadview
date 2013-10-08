@@ -1,11 +1,10 @@
 package com.google.code.yadview.util;
 
+import java.util.Calendar;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.format.Time;
-
-
-import java.util.Calendar;
 
 public class CalendarDateUtils {
 

@@ -1,10 +1,10 @@
 package com.google.code.yadview.util;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-
 import java.util.LinkedHashSet;
 import java.util.Set;
+
+import android.content.Context;
+import android.content.SharedPreferences;
 
 public class PreferencesUtils {
 

@@ -20,9 +20,6 @@ import android.provider.CalendarContract.Attendees;
 import android.text.format.DateUtils;
 import android.util.Log;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
 // TODO: should Event be Parcelable so it can be passed via Intents?
 public class Event implements Cloneable {
 
