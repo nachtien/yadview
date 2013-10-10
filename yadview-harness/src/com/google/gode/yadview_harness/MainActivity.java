@@ -14,6 +14,7 @@ import com.google.code.yadview.impl.DefaultDayViewModel;
 import com.google.code.yadview.impl.DefaultDayViewResources;
 import com.google.code.yadview.impl.DefaultEventLoader;
 import com.google.code.yadview.impl.DefaultUtilFactory;
+import com.google.gode.yadview_harness.AlternateEventRenderer.AlternateRendererDayViewResources;
 
 public class MainActivity extends Activity implements ViewFactory {
 
@@ -56,7 +57,9 @@ public class MainActivity extends Activity implements ViewFactory {
 	@Override
 	public View makeView() {
 		ViewSwitcher vs = (ViewSwitcher)findViewById(R.id.view_switcher);
-		DefaultDayViewResources resources = new DefaultDayViewResources(this);
+		
+		//using alternate renderer - use alternate dayview resources
+		DefaultDayViewResources resources = new AlternateRendererDayViewResources(this);
 		DefaultUtilFactory utilFactory = new DefaultUtilFactory("yadview_harness.prefs");
 		DayView dv = new DayView(this, new DefaultDayViewModel(), vs, mEventLoader, 1, utilFactory, resources);
 		

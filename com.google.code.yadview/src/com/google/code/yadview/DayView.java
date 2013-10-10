@@ -557,7 +557,6 @@ public class DayView extends View implements View.OnCreateContextMenuListener,
     // tracks whether a touch originated in the allday area
     private boolean mTouchStartedInAlldayArea = false;
 
-    private final DayViewModel mModel;
     private final ViewSwitcher mViewSwitcher;
     private final GestureDetector mGestureDetector;
     private final OverScroller mScroller;
@@ -600,7 +599,6 @@ public class DayView extends View implements View.OnCreateContextMenuListener,
         mEventGeometry.setHourGap(HOUR_GAP);
         mEventGeometry.setCellMargin(DAY_GAP);
         mLastPopupEventID = INVALID_EVENT_ID;
-        mModel = controller;
         mViewSwitcher = viewSwitcher;
         mGestureDetector = new GestureDetector(context, new CalendarGestureListener());
         mScaleGestureDetector = new ScaleGestureDetector(getContext(), this);
@@ -1657,14 +1655,12 @@ public class DayView extends View implements View.OnCreateContextMenuListener,
             outToXValue = 1.0f;
         }
 
-        final Time start = new Time(mBaseDate.timezone);
-        start.set(mModel.getTime());
+        final Time start = new Time(mBaseDate);
         if (forward) {
             start.monthDay += mNumDays;
         } else {
             start.monthDay -= mNumDays;
         }
-        mModel.setTime(start.normalize(true));
 
         Time newSelected = start;
 
@@ -1859,9 +1855,10 @@ public class DayView extends View implements View.OnCreateContextMenuListener,
                 
 
                 // Create a shorter array for all day events
-                for (Event e : events) {
-                    if (e.drawAsAllday()) {
-                        mAllDayEvents.add(new EventLayout(e));
+                //share references between mEvents and mAllDayEvents 
+                for (EventLayout e : mEvents) {
+                    if (e.getEvent().drawAsAllday()) {
+                        mAllDayEvents.add(e);
                     }
                 }
 

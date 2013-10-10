@@ -275,4 +275,5 @@ public class EventRenderer {
 	public void prepareForEvents(ArrayList<Event> events) {
 		mLayoutMap.clear();
 	}
+
 }
