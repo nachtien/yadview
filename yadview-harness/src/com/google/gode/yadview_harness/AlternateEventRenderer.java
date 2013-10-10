@@ -58,6 +58,9 @@ public class AlternateEventRenderer extends EventRenderer {
         LinearLayout ll = (LinearLayout)mTemplateView;
         
         ll.layout(0,0,0,0);
+        ll.setRight(width);
+        ll.setBottom(height);
+        
         mEventTitle.setText(event.getEvent().getTitle());
         mEventColourPanel.setBackgroundColor(Color.BLACK | event.getEvent().getColor());
 
@@ -121,7 +124,5 @@ public class AlternateEventRenderer extends EventRenderer {
         
         
     }
-    
-
 
 }
