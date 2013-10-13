@@ -21,10 +21,6 @@
 
 
 
-    <style name="MinusButton">
-        <item name="android:background">?android:attr/selectableItemBackground</item>
-        <item name="android:src">@drawable/ic_menu_remove_field_holo_light</item>
-    </style>
 
     <style name="MonthView_DayLabel">
         <item name="android:layout_width">29dip</item>

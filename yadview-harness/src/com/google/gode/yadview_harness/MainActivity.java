@@ -10,7 +10,6 @@ import android.widget.ViewSwitcher;
 import android.widget.ViewSwitcher.ViewFactory;
 
 import com.google.code.yadview.DayView;
-import com.google.code.yadview.impl.DefaultDayViewModel;
 import com.google.code.yadview.impl.DefaultDayViewResources;
 import com.google.code.yadview.impl.DefaultEventLoader;
 import com.google.code.yadview.impl.DefaultUtilFactory;
@@ -61,7 +60,7 @@ public class MainActivity extends Activity implements ViewFactory {
 		//using alternate renderer - use alternate dayview resources
 		DefaultDayViewResources resources = new AlternateRendererDayViewResources(this);
 		DefaultUtilFactory utilFactory = new DefaultUtilFactory("yadview_harness.prefs");
-		DayView dv = new DayView(this, new DefaultDayViewModel(), vs, mEventLoader, 1, utilFactory, resources);
+		DayView dv = new DayView(this,vs, mEventLoader, 1, utilFactory, resources);
 		
 		
 		dv.getEventBus().register(this);

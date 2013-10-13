@@ -572,9 +572,9 @@ public class DayView extends View implements View.OnCreateContextMenuListener,
     private boolean mTouchExplorationEnabled = false;
 	private EventRenderer mEventRenderer;
 
-    public DayView(Context context, DayViewModel controller,
-            ViewSwitcher viewSwitcher, DefaultEventLoader eventLoader, int numDays,
-            DefaultUtilFactory utilFactory, DayViewResources resources) {
+    public DayView(Context context, ViewSwitcher viewSwitcher,
+            DefaultEventLoader eventLoader, int numDays, DefaultUtilFactory utilFactory,
+            DayViewResources resources) {
         super(context);
         mContext = context;
         mUtilFactory = utilFactory;
