@@ -13,33 +13,34 @@ public final class R {
     public static final class color {
         /**  The app wide background color 
          */
-        public static int background_color=0x7f040001;
-        public static int calendar_ampm_label=0x7f040009;
-        public static int calendar_date_banner_text_color=0x7f04000b;
-        public static int calendar_date_range_color=0x7f040004;
-        public static int calendar_event_text_color=0x7f040003;
-        public static int calendar_future_bg_color=0x7f040007;
-        public static int calendar_grid_area_selected=0x7f04000c;
-        public static int calendar_grid_line_highlight_color=0x7f04000f;
-        public static int calendar_grid_line_inner_horizontal_color=0x7f04000d;
-        public static int calendar_grid_line_inner_vertical_color=0x7f04000e;
-        public static int calendar_hour_background=0x7f04000a;
-        public static int calendar_hour_label=0x7f040008;
+        public static int background_color=0x7f040002;
+        public static int calendar_ampm_label=0x7f04000a;
+        public static int calendar_date_banner_text_color=0x7f04000c;
+        public static int calendar_date_range_color=0x7f040005;
+        public static int calendar_event_text_color=0x7f040004;
+        public static int calendar_future_bg_color=0x7f040008;
+        public static int calendar_grid_area_selected=0x7f04000d;
+        public static int calendar_grid_line_highlight_color=0x7f040010;
+        public static int calendar_grid_line_inner_horizontal_color=0x7f04000e;
+        public static int calendar_grid_line_inner_vertical_color=0x7f04000f;
+        public static int calendar_hour_background=0x7f04000b;
+        public static int calendar_hour_label=0x7f040009;
         /**  Text color of a clicked event in the day/week view 
          */
-        public static int day_event_clicked_background_color=0x7f040016;
-        public static int edit_event_separator=0x7f040014;
-        public static int month_day_names_color=0x7f040011;
-        public static int month_event_other_color=0x7f040012;
-        public static int month_mini_day_number=0x7f040010;
-        public static int month_other_month_day_number=0x7f040013;
+        public static int day_event_clicked_background_color=0x7f040017;
+        public static int edit_event_separator=0x7f040015;
+        public static int event_center=0x7f040001;
+        public static int month_day_names_color=0x7f040012;
+        public static int month_event_other_color=0x7f040013;
+        public static int month_mini_day_number=0x7f040011;
+        public static int month_other_month_day_number=0x7f040014;
         /**  Text color of the "new event" hint in day and week views 
          */
-        public static int new_event_hint_text_color=0x7f040015;
-        public static int panel_text_foreground=0x7f040002;
+        public static int new_event_hint_text_color=0x7f040016;
+        public static int panel_text_foreground=0x7f040003;
         public static int pressed=0x7f040000;
-        public static int week_saturday=0x7f040005;
-        public static int week_sunday=0x7f040006;
+        public static int week_saturday=0x7f040006;
+        public static int week_sunday=0x7f040007;
     }
     public static final class dimen {
         public static int all_day_bottom_margin=0x7f050001;
@@ -131,6 +132,9 @@ public final class R {
  This is the button to create a new event in a dialog window. [CHAR LIMIT=30] 
          */
         public static int new_event_dialog_option=0x7f060005;
+        /**  Title of event when no explicit title is specified by the user 
+         */
+        public static int no_title_label=0x7f060008;
         /**  This is a label on a context menu item. Pressing this menu item displays the
          Day view. 
          */

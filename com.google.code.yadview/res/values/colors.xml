@@ -21,6 +21,8 @@
 
     <color name="pressed">#330066ff</color>
 
+	<color name="event_center">#ff6bd697</color>
+    
 
     <!-- The app wide background color -->
     <color name="background_color">#fafafa</color>

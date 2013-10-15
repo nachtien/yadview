@@ -1,11 +1,12 @@
 package com.google.gode.yadview_harness;
 
-import android.content.Context;
+import android.app.Activity;
 import android.text.format.Time;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import com.google.code.yadview.DayView;
@@ -15,6 +16,7 @@ import com.google.code.yadview.DayViewOnLongClickListener;
 import com.google.code.yadview.EventResource;
 import com.google.code.yadview.events.ShowDateInCurrentViewEvent;
 import com.google.code.yadview.events.ShowDateInDayViewEvent;
+import com.google.code.yadview.events.ViewEventEvent;
 import com.google.code.yadview.impl.DefaultDayViewFactory;
 import com.google.code.yadview.impl.DefaultDayViewResources;
 import com.google.code.yadview.impl.DefaultUtilFactory;
@@ -27,9 +29,12 @@ public class YadviewHarnessDayViewFactory extends DefaultDayViewFactory {
     private Animation mOutAnimationForward;
     private Animation mInAnimationBackward;
     private Animation mOutAnimationBackward;
+    private Activity mActivity;
 
-    public YadviewHarnessDayViewFactory(ViewSwitcher vs, EventResource eventResource, Context context) {
+    public YadviewHarnessDayViewFactory(ViewSwitcher vs, EventResource eventResource, Activity context) {
         super(vs, eventResource, context);
+        
+        mActivity = context;
         
         mInAnimationForward = AnimationUtils.loadAnimation(context, R.anim.slide_left_in);
         mOutAnimationForward = AnimationUtils.loadAnimation(context, R.anim.slide_left_out);
@@ -48,12 +53,23 @@ public class YadviewHarnessDayViewFactory extends DefaultDayViewFactory {
         
 //        dv.setOnCreateContextMenuListener(new DayViewOnCreateContextMenuListener(getContext(), dv, utilFactory, resources, getEventResource()));
 //        dv.setOnLongClickListener(new DayViewOnLongClickListener(getContext(), dv, resources, utilFactory));
-//        dv.setOnKeyListener(new DayViewOnKeyListener(getContext(), dv));
+        dv.setOnKeyListener(new DayViewOnKeyListener(getContext(), dv));
         
         dv.getEventBus().register(this);
         
+        mActivity.registerForContextMenu(dv);
+        
+        
         return dv;
     }
+    
+    
+    @Subscribe
+    public void handleShowDateEvent(ViewEventEvent e){
+        Toast.makeText(getContext(), "test! " + e.getEvent().toString(), Toast.LENGTH_SHORT ).show();
+
+    }
+    
     
     @Subscribe
     public void handleShowDateEvent(ShowDateInCurrentViewEvent e){
@@ -77,7 +93,7 @@ public class YadviewHarnessDayViewFactory extends DefaultDayViewFactory {
 
         if (diff == 0) {
             // In visible range. No need to switch view
-            currentView.setSelected(showTime, true, false);
+            currentView.setSelected(showTime, false, false);
         } else {
             // Figure out which way to animate
             if (diff > 0) {
@@ -89,11 +105,8 @@ public class YadviewHarnessDayViewFactory extends DefaultDayViewFactory {
             }
 
             DayView next = (DayView) getViewSwitcher().getNextView();
-            if (true) {
-                next.setFirstVisibleHour(currentView.getFirstVisibleHour());
-            }
 
-            next.setSelected(showTime, true, false);
+            next.setSelected(showTime, false, false);
             next.reloadEvents();
             getViewSwitcher().showNext();
             next.requestFocus();

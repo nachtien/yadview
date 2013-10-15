@@ -7,14 +7,18 @@ import android.view.Menu;
 import android.widget.ViewSwitcher;
 
 import com.google.code.yadview.DayView;
+import com.google.code.yadview.EventResource;
+import com.google.code.yadview.impl.DefaultEventResource;
+import com.google.code.yadview.impl.DefaultUtilFactory;
 
 public class MainActivity extends Activity  {
 
-    private MockEventResource mEventResource;
+    private EventResource mEventResource;
     private YadviewHarnessDayViewFactory mViewFactory;
 
 	public MainActivity() {
-	    mEventResource = new MockEventResource();
+//	    mEventResource = new MockEventResource();
+	    mEventResource = new DefaultEventResource(this, new DefaultUtilFactory("yadview_harness.prefs"));
 		
 		
 	}

@@ -194,64 +194,6 @@ public class DayViewOnCreateContextMenuListener implements OnCreateContextMenuLi
     }
     
     
-    /*
-Default Implementation of Event Access Level:
-     */
-
-//    private static int getEventAccessLevel(Context context, Event e) {
-//        ContentResolver cr = context.getContentResolver();
-//
-//        int accessLevel = Calendars.CAL_ACCESS_NONE;
-//
-//        // Get the calendar id for this event
-//        Cursor cursor = cr.query(ContentUris.withAppendedId(Events.CONTENT_URI, e.getId()),
-//                new String[] {
-//                    Events.CALENDAR_ID
-//                },
-//                null /* selection */,
-//                null /* selectionArgs */,
-//                null /* sort */);
-//
-//        if (cursor == null) {
-//            return ACCESS_LEVEL_NONE;
-//        }
-//
-//        if (cursor.getCount() == 0) {
-//            cursor.close();
-//            return ACCESS_LEVEL_NONE;
-//        }
-//
-//        cursor.moveToFirst();
-//        long calId = cursor.getLong(0);
-//        cursor.close();
-//
-//        Uri uri = Calendars.CONTENT_URI;
-//        String where = String.format(CALENDARS_WHERE, calId);
-//        cursor = cr.query(uri, CALENDARS_PROJECTION, where, null, null);
-//
-//        String calendarOwnerAccount = null;
-//        if (cursor != null) {
-//            cursor.moveToFirst();
-//            accessLevel = cursor.getInt(CALENDARS_INDEX_ACCESS_LEVEL);
-//            calendarOwnerAccount = cursor.getString(CALENDARS_INDEX_OWNER_ACCOUNT);
-//            cursor.close();
-//        }
-//
-//        if (accessLevel < Calendars.CAL_ACCESS_CONTRIBUTOR) {
-//            return ACCESS_LEVEL_NONE;
-//        }
-//
-//        if (e.isGuestsCanModify()) {
-//            return ACCESS_LEVEL_EDIT;
-//        }
-//
-//        if (!TextUtils.isEmpty(calendarOwnerAccount)
-//                && calendarOwnerAccount.equalsIgnoreCase(e.getOrganizer())) {
-//            return ACCESS_LEVEL_EDIT;
-//        }
-//
-//        return ACCESS_LEVEL_DELETE;
-//    }
 
 
 }

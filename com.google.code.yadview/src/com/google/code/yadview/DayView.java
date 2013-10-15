@@ -1278,9 +1278,10 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
             initView(view);
 
             Time end = new Time(date);
+            end.hour = mSelectionHour;
             end.monthDay += mNumDays - 1;
             
-            getEventBus().post(new ShowDateInCurrentViewEvent(date, date));
+            getEventBus().post(new ShowDateInCurrentViewEvent(date, end));
         } else if (mSelectionDay != selectionDay) {
             //new day is on the current calendar
             mSelectionDay = selectionDay;
