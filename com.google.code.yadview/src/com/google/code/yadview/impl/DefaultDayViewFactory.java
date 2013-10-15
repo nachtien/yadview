@@ -37,9 +37,9 @@ public class DefaultDayViewFactory implements ViewFactory {
         dv.setLayoutParams(new ViewSwitcher.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         
         //matching previous behaviour
-//        dv.setOnCreateContextMenuListener(new DayViewOnCreateContextMenuListener(mContext, dv, utilFactory, resources, mEventResource));
-//        dv.setOnLongClickListener(new DayViewOnLongClickListener(mContext, dv, resources, utilFactory));
-//        dv.setOnKeyListener(new DayViewOnKeyListener(mContext, dv));
+        dv.setOnCreateContextMenuListener(new DayViewOnCreateContextMenuListener(mContext, dv, utilFactory, resources, mEventResource));
+        dv.setOnLongClickListener(new DayViewOnLongClickListener(mContext, dv, resources, utilFactory));
+        dv.setOnKeyListener(new DayViewOnKeyListener(mContext, dv));
         return dv;
     }
     

@@ -46,12 +46,9 @@ public class YadviewHarnessDayViewFactory extends DefaultDayViewFactory {
         DayView dv = new DayView(getContext(),getViewSwitcher(), getEventLoader(), 1, utilFactory, resources, new  AlternateEventRenderer(getContext(), resources,utilFactory));
         dv.setLayoutParams(new ViewSwitcher.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         
-        
-        dv.setOnCreateContextMenuListener(new DayViewOnCreateContextMenuListener(getContext(), dv, utilFactory, resources, getEventResource()));
-        dv.setOnLongClickListener(new DayViewOnLongClickListener(getContext(), dv, resources, utilFactory));
-        dv.setOnKeyListener(new DayViewOnKeyListener(getContext(), dv));
-
-        
+//        dv.setOnCreateContextMenuListener(new DayViewOnCreateContextMenuListener(getContext(), dv, utilFactory, resources, getEventResource()));
+//        dv.setOnLongClickListener(new DayViewOnLongClickListener(getContext(), dv, resources, utilFactory));
+//        dv.setOnKeyListener(new DayViewOnKeyListener(getContext(), dv));
         
         dv.getEventBus().register(this);
         
