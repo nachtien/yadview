@@ -1,17 +1,19 @@
-package com.google.code.yadview;
+package com.google.code.yadview.events;
 
 import android.text.format.Time;
 
-public class ShowDateInAgendaViewEvent  {
+public class ShowDateInDayViewEvent {
 
     private Time mSelectedTime;
 
-    public ShowDateInAgendaViewEvent(Time selectedTime) {
+    public ShowDateInDayViewEvent(Time selectedTime) {
         mSelectedTime = selectedTime;
     }
     
     public Time getSelectedTime() {
         return mSelectedTime;
-    }
+    };
+    
+
 
 }

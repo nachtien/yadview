@@ -1,6 +1,8 @@
 
 package com.google.gode.yadview_harness;
 
+import java.util.ArrayList;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -14,12 +16,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.code.yadview.DayViewResources;
+import com.google.code.yadview.Event;
 import com.google.code.yadview.EventLayout;
 import com.google.code.yadview.EventRenderer;
 import com.google.code.yadview.impl.DefaultDayViewResources;
 import com.google.code.yadview.impl.DefaultUtilFactory;
 
-public class AlternateEventRenderer extends EventRenderer {
+public class AlternateEventRenderer implements EventRenderer {
 
     private Context mContext;
     private DayViewResources mDayViewResources;
@@ -27,9 +30,7 @@ public class AlternateEventRenderer extends EventRenderer {
     private TextView mEventTitle;
     private View mEventColourPanel;
 
-    public AlternateEventRenderer(Context ctx, DayViewResources dayViewResources,
-            DefaultUtilFactory utilFactory) {
-        super(dayViewResources, utilFactory);
+    public AlternateEventRenderer(Context ctx, DayViewResources dayViewResources, DefaultUtilFactory utilFactory) {
         mDayViewResources = dayViewResources;
         mContext = ctx;
         
@@ -122,6 +123,13 @@ public class AlternateEventRenderer extends EventRenderer {
             return getSingleAlldayHeight();
         }
         
+        
+    }
+
+
+
+    @Override
+    public void prepareForEvents(ArrayList<Event> events) {
         
     }
 

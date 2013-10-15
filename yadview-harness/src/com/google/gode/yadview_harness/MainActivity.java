@@ -4,46 +4,50 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.text.format.Time;
 import android.view.Menu;
-import android.view.View;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.ViewSwitcher;
-import android.widget.ViewSwitcher.ViewFactory;
 
 import com.google.code.yadview.DayView;
-import com.google.code.yadview.impl.DefaultDayViewResources;
-import com.google.code.yadview.impl.DefaultEventLoader;
-import com.google.code.yadview.impl.DefaultUtilFactory;
-import com.google.gode.yadview_harness.AlternateEventRenderer.AlternateRendererDayViewResources;
 
-public class MainActivity extends Activity implements ViewFactory {
+public class MainActivity extends Activity  {
 
-	private DefaultEventLoader mEventLoader;
+    private MockEventResource mEventResource;
+    private YadviewHarnessDayViewFactory mViewFactory;
 
 	public MainActivity() {
-		mEventLoader = new DefaultEventLoader(new MockEventResource());
+	    mEventResource = new MockEventResource();
+		
+		
 	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-
-		ViewSwitcher vs = (ViewSwitcher)findViewById(R.id.view_switcher);
-		vs.setFactory(this);
 		
+		ViewSwitcher vs = (ViewSwitcher)findViewById(R.id.view_switcher);
+		mViewFactory = new YadviewHarnessDayViewFactory(vs, mEventResource, this);
+		
+		vs.setFactory(mViewFactory);
+		
+		DayView dv = (DayView)vs.getCurrentView();
+        Time today = new Time();
+        today.setToNow();
+        dv.setSelected(today, false, false);
+        dv.clearCachedEvents();
+        dv.reloadEvents();
 	}
 	
 	@Override
 	protected void onResume() {
 		super.onResume();
-		mEventLoader.startBackgroundThread();
+		mViewFactory.getEventLoader().startBackgroundThread();
 		
 	}
 	
 	@Override
 	protected void onPause() {
 		super.onPause();
-		mEventLoader.stopBackgroundThread();
+		mViewFactory.getEventLoader().stopBackgroundThread();
 	}
 
 	@Override
@@ -53,32 +57,6 @@ public class MainActivity extends Activity implements ViewFactory {
 		return true;
 	}
 
-	@Override
-	public View makeView() {
-		ViewSwitcher vs = (ViewSwitcher)findViewById(R.id.view_switcher);
-		
-		//using alternate renderer - use alternate dayview resources
-		DefaultDayViewResources resources = new AlternateRendererDayViewResources(this);
-		DefaultUtilFactory utilFactory = new DefaultUtilFactory("yadview_harness.prefs");
-		DayView dv = new DayView(this,vs, mEventLoader, 1, utilFactory, resources);
-		
-		
-		dv.getEventBus().register(this);
-		
-        dv.setLayoutParams(new ViewSwitcher.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-        
-        Time today = new Time();
-        today.setToNow();
-        dv.setSelected(today, false, false);
-        dv.clearCachedEvents();
-        dv.reloadEvents();
-        
-        
-        dv.setEventRenderer(new AlternateEventRenderer(this, resources,utilFactory));
-        
-        
-		return dv;
-	}
 	
 
 

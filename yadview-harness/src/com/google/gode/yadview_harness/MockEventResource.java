@@ -134,4 +134,10 @@ public class MockEventResource implements EventResource {
 
     }
 
+    @Override
+    public int getEventAccessLevel(Event e) {
+        return ACCESS_LEVEL_NONE;
+        
+    }
+
 }

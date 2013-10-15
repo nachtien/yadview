@@ -1,4 +1,4 @@
-package com.google.code.yadview;
+package com.google.code.yadview.events;
 
 import android.text.format.Time;
 

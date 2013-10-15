@@ -1,4 +1,6 @@
-package com.google.code.yadview;
+package com.google.code.yadview.events;
+
+import com.google.code.yadview.Event;
 
 
 public class EditEventEvent {
