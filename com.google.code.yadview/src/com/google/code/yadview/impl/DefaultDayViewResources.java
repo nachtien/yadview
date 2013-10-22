@@ -547,142 +547,142 @@ public class DefaultDayViewResources implements DayViewResources {
     }
 
     @Override
-    public int getALLDAY_TOP_MARGIN() {
+    public int getAlldayTopMargin() {
         return (int) (ALLDAY_TOP_MARGIN * mScale);
     }
 
     @Override
-    public int getMAX_HEIGHT_OF_ONE_ALLDAY_EVENT() {
+    public int getMaxHeightOfOneAlldayEvent() {
         return (int) (MAX_HEIGHT_OF_ONE_ALLDAY_EVENT * mScale);
     }
 
     @Override
-    public float getNORMAL_FONT_SIZE() {
+    public float getNormalFontSize() {
         return NORMAL_FONT_SIZE * mScale;
     }
 
     @Override
-    public float getGRID_LINE_LEFT_MARGIN() {
+    public float getGridLineLeftMargin() {
         return GRID_LINE_LEFT_MARGIN * mScale;
     }
 
     @Override
-    public int getHOURS_TOP_MARGIN() {
+    public int getHoursTopMargin() {
         return (int) (HOURS_TOP_MARGIN * mScale);
     }
 
     @Override
-    public int getMIN_CELL_WIDTH_FOR_TEXT() {
+    public int getMinCellWidthForText() {
         return (int) (MIN_CELL_WIDTH_FOR_TEXT * mScale);
     }
 
     @Override
-    public int getCURRENT_TIME_LINE_SIDE_BUFFER() {
+    public int getCurrentTimeLineSideBuffer() {
         return (int) (CURRENT_TIME_LINE_SIDE_BUFFER * mScale);
     }
 
     @Override
-    public int getCURRENT_TIME_LINE_TOP_OFFSET() {
+    public int getCurrentTimeLineTopOffset() {
         return (int) (CURRENT_TIME_LINE_TOP_OFFSET * mScale);
     }
 
     @Override
-    public int getDEFAULT_CELL_HEIGHT() {
+    public int getDefaultCellHeight() {
         return (int) (DEFAULT_CELL_HEIGHT * mScale);
     }
 
     @Override
-    public int getMAX_CELL_HEIGHT() {
+    public int getMaxCellHeight() {
         return (int) (MAX_CELL_HEIGHT * mScale);
     }
 
     @Override
-    public int getMIN_Y_SPAN() {
+    public int getMinYSpan() {
         return (int) (MIN_Y_SPAN * mScale);
     }
 
     @Override
-    public int getDAY_HEADER_HEIGHT() {
+    public int getDayHeaderHeight() {
         return (int) (DAY_HEADER_HEIGHT * mScale);
     }
 
     @Override
-    public int getDAY_HEADER_ONE_DAY_LEFT_MARGIN() {
+    public int getDayHeaderOneDayLeftMargin() {
         return (int) (DAY_HEADER_ONE_DAY_LEFT_MARGIN * mScale);
     }
 
     @Override
-    public int getDAY_HEADER_ONE_DAY_RIGHT_MARGIN() {
+    public int getDayHeaderOneDayRightMargin() {
         return (int) (DAY_HEADER_ONE_DAY_RIGHT_MARGIN * mScale);
     }
 
     @Override
-    public int getDAY_HEADER_ONE_DAY_BOTTOM_MARGIN() {
+    public int getDayHeaderOneDayBottomMargin() {
         return (int) (DAY_HEADER_ONE_DAY_BOTTOM_MARGIN * mScale);
     }
 
     @Override
-    public int getDAY_HEADER_RIGHT_MARGIN() {
+    public int getDayHeaderRightMargin() {
         return (int) (DAY_HEADER_RIGHT_MARGIN * mScale);
     }
 
     @Override
-    public int getCALENDAR_COLOR_SQUARE_SIZE() {
+    public int getCalendarColorSquareSize() {
         return (int) (CALENDAR_COLOR_SQUARE_SIZE * mScale);
     }
 
     @Override
-    public int getEVENT_RECT_TOP_MARGIN() {
+    public int getEventRectTopMargin() {
         return (int) (EVENT_RECT_TOP_MARGIN * mScale);
     }
 
     @Override
-    public int getEVENT_RECT_BOTTOM_MARGIN() {
+    public int getEventRectBottomMargin() {
         return (int) (EVENT_RECT_BOTTOM_MARGIN * mScale);
     }
 
     @Override
-    public int getEVENT_RECT_LEFT_MARGIN() {
+    public int getEventRectLeftMargin() {
         return (int) (EVENT_RECT_LEFT_MARGIN * mScale);
     }
 
     @Override
-    public int getEVENT_RECT_RIGHT_MARGIN() {
+    public int getEventRectRightMargin() {
         return (int) (EVENT_RECT_RIGHT_MARGIN * mScale);
     }
 
     @Override
-    public int getEVENT_RECT_STROKE_WIDTH() {
+    public int getEventRectStrokeWidth() {
         return (int) (EVENT_RECT_STROKE_WIDTH * mScale);
     }
 
     @Override
-    public int getALL_DAY_EVENT_RECT_BOTTOM_MARGIN() {
+    public int getAllDayEventRectBottomMargin() {
         return (int) (ALL_DAY_EVENT_RECT_BOTTOM_MARGIN * mScale);
     }
 
     @Override
-    public int getEVENT_SQUARE_WIDTH() {
+    public int getEventSquareWidth() {
         return (int) (EVENT_SQUARE_WIDTH * mScale);
     }
 
     @Override
-    public int getEVENT_LINE_PADDING() {
+    public int getEventLinePadding() {
         return (int) (EVENT_LINE_PADDING * mScale);
     }
 
     @Override
-    public int getNEW_EVENT_MARGIN() {
+    public int getNewEventMargin() {
         return (int) (NEW_EVENT_MARGIN * mScale);
     }
 
     @Override
-    public int getNEW_EVENT_WIDTH() {
+    public int getNewEventWidth() {
         return (int) (NEW_EVENT_WIDTH * mScale);
     }
 
     @Override
-    public int getNEW_EVENT_MAX_LENGTH() {
+    public int getNewEventMaxLength() {
         return (int) (NEW_EVENT_MAX_LENGTH * mScale);
     }
     

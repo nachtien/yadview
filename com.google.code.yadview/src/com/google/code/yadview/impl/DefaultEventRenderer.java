@@ -46,19 +46,19 @@ public class DefaultEventRenderer implements EventRenderer {
     public void drawEvent(EventLayout event, Canvas canvas, Paint p, Paint eventTextPaint, int visibleTop, int visibleBot, boolean isSelectedEvent, boolean drawSelectedEvent) {
         // Draw the Event Rect
         Rect r = mRect ;
-        r.top = Math.max((int) event.getTop() + mDayViewResources.getEVENT_RECT_TOP_MARGIN(), visibleTop);
-        r.bottom = Math.min((int) event.getBottom() - mDayViewResources.getEVENT_RECT_BOTTOM_MARGIN(), visibleBot);
-        r.left = (int) event.getLeft() + mDayViewResources.getEVENT_RECT_LEFT_MARGIN();
+        r.top = Math.max((int) event.getTop() + mDayViewResources.getEventRectTopMargin(), visibleTop);
+        r.bottom = Math.min((int) event.getBottom() - mDayViewResources.getEventRectBottomMargin(), visibleBot);
+        r.left = (int) event.getLeft() + mDayViewResources.getEventRectLeftMargin();
         r.right = (int) event.getRight();
 
         drawEventRect(event, canvas, p, visibleTop, visibleBot,
 				isSelectedEvent, drawSelectedEvent, r);
 
         // Setup rect for drawEventText which follows
-        r.top = (int) event.getTop() + mDayViewResources.getEVENT_RECT_TOP_MARGIN();
-        r.bottom = (int) event.getBottom() - mDayViewResources.getEVENT_RECT_BOTTOM_MARGIN();
-        r.left = (int) event.getLeft() + mDayViewResources.getEVENT_RECT_LEFT_MARGIN();
-        r.right = (int) event.getRight() - mDayViewResources.getEVENT_RECT_RIGHT_MARGIN();
+        r.top = (int) event.getTop() + mDayViewResources.getEventRectTopMargin();
+        r.bottom = (int) event.getBottom() - mDayViewResources.getEventRectBottomMargin();
+        r.left = (int) event.getLeft() + mDayViewResources.getEventRectLeftMargin();
+        r.right = (int) event.getRight() - mDayViewResources.getEventRectRightMargin();
         
         
         
@@ -85,7 +85,7 @@ public class DefaultEventRenderer implements EventRenderer {
         int height = rect.bottom - rect.top;
 
         // If the rectangle is too small for text, then return
-        if (eventLayout == null || width < mDayViewResources.getMIN_CELL_WIDTH_FOR_TEXT()) {
+        if (eventLayout == null || width < mDayViewResources.getMinCellWidthForText()) {
             return;
         }
 
@@ -154,14 +154,14 @@ public class DefaultEventRenderer implements EventRenderer {
 
         p.setAntiAlias(false);
 
-        int floorHalfStroke = (int) Math.floor(mDayViewResources.getEVENT_RECT_STROKE_WIDTH() / 2.0f);
-        int ceilHalfStroke = (int) Math.ceil(mDayViewResources.getEVENT_RECT_STROKE_WIDTH() / 2.0f);
-        r.top = Math.max((int) event.getTop() + mDayViewResources.getEVENT_RECT_TOP_MARGIN() + floorHalfStroke, visibleTop);
-        r.bottom = Math.min((int) event.getBottom() - mDayViewResources.getEVENT_RECT_BOTTOM_MARGIN() - ceilHalfStroke,
+        int floorHalfStroke = (int) Math.floor(mDayViewResources.getEventRectStrokeWidth() / 2.0f);
+        int ceilHalfStroke = (int) Math.ceil(mDayViewResources.getEventRectStrokeWidth() / 2.0f);
+        r.top = Math.max((int) event.getTop() + mDayViewResources.getEventRectTopMargin() + floorHalfStroke, visibleTop);
+        r.bottom = Math.min((int) event.getBottom() - mDayViewResources.getEventRectBottomMargin() - ceilHalfStroke,
                 visibleBot);
         r.left += floorHalfStroke;
         r.right -= ceilHalfStroke;
-        p.setStrokeWidth(mDayViewResources.getEVENT_RECT_STROKE_WIDTH());
+        p.setStrokeWidth(mDayViewResources.getEventRectStrokeWidth());
         p.setColor(color);
         int alpha = p.getAlpha();
         p.setAlpha(mEventsAlpha);

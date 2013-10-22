@@ -118,14 +118,6 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
 
     protected Context mContext;
 
-    private static final String[] CALENDARS_PROJECTION = new String[] {
-            Calendars._ID, // 0
-            Calendars.CALENDAR_ACCESS_LEVEL, // 1
-            Calendars.OWNER_ACCOUNT, // 2
-    };
-    private static final int CALENDARS_INDEX_ACCESS_LEVEL = 1;
-    private static final int CALENDARS_INDEX_OWNER_ACCOUNT = 2;
-    private static final String CALENDARS_WHERE = Calendars._ID + "=%d";
 
     private static final int FROM_NONE = 0;
     private static final int FROM_ABOVE = 1;
@@ -161,7 +153,6 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
     private EventLayout mClickedEvent; // The event the user clicked on
     private EventLayout mSavedClickedEvent;
     private static int mOnDownDelay;
-    private int mClickedYLocation;
     private long mDownTouchTime;
 
     private int mEventsAlpha = 255;
@@ -581,7 +572,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
         mScaleGestureDetector = new ScaleGestureDetector(getContext(), this);
         if (mCellHeight == 0) {
             mCellHeight = mUtilFactory.buildPreferencesUtils().getSharedPreference(mContext,
-                    KEY_DEFAULT_CELL_HEIGHT, mDayViewResources.getDEFAULT_CELL_HEIGHT());
+                    KEY_DEFAULT_CELL_HEIGHT, mDayViewResources.getDefaultCellHeight());
         }
         mScroller = new OverScroller(context);
         mHScrollInterpolator = new ScrollInterpolator();
@@ -1082,7 +1073,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
             } else if (maxAllDayEvents <= mMaxUnexpandedAlldayEventCount) {
                 // Allow the all-day area to grow in height depending on the
                 // number of all-day events we need to show, up to a limit.
-                allDayHeight = maxAllDayEvents * mDayViewResources.getMAX_HEIGHT_OF_ONE_ALLDAY_EVENT();
+                allDayHeight = maxAllDayEvents * mDayViewResources.getMaxHeightOfOneAlldayEvent();
                 if (allDayHeight > mMaxUnexpandedAllDayHeight) {
                     allDayHeight = mMaxUnexpandedAllDayHeight;
                 }
@@ -1111,7 +1102,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
                 }
             }
             mFirstCell = mDayViewResources.getDayHeaderHeight(mNumDays) + allDayHeight
-                    + mDayViewResources.getALLDAY_TOP_MARGIN();
+                    + mDayViewResources.getAlldayTopMargin();
         } else {
             mSelectionAllday = false;
         }
@@ -1923,7 +1914,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
 
         p.setColor(mDayViewResources.getCalendarGridLineInnerHorizontalColor());
         p.setStrokeWidth(GRID_LINE_INNER_WIDTH);
-        canvas.drawLine(mDayViewResources.getGRID_LINE_LEFT_MARGIN(), y, right, y, p);
+        canvas.drawLine(mDayViewResources.getGridLineLeftMargin(), y, right, y, p);
         p.setAntiAlias(true);
     }
 
@@ -1976,7 +1967,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
         if (mSelectionAllday && mSelectionMode != SELECTION_HIDDEN) {
             // Draw the selection highlight on the selected all-day area
             mRect.top = mDayViewResources.getDayHeaderHeight(mNumDays) + 1;
-            mRect.bottom = mRect.top + mAlldayHeight + mDayViewResources.getALLDAY_TOP_MARGIN() - 2;
+            mRect.bottom = mRect.top + mAlldayHeight + mDayViewResources.getAlldayTopMargin() - 2;
             int daynum = mSelectionDay - mFirstJulianDay;
             mRect.left = computeDayLeftPosition(daynum) + 1;
             mRect.right = computeDayLeftPosition(daynum + 1);
@@ -2067,10 +2058,10 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
 
     private void drawCurrentTimeLine(Rect r, final int day, final int top, Canvas canvas,
             Paint p) {
-        r.left = computeDayLeftPosition(day) - mDayViewResources.getCURRENT_TIME_LINE_SIDE_BUFFER() + 1;
-        r.right = computeDayLeftPosition(day + 1) + mDayViewResources.getCURRENT_TIME_LINE_SIDE_BUFFER() + 1;
+        r.left = computeDayLeftPosition(day) - mDayViewResources.getCurrentTimeLineSideBuffer() + 1;
+        r.right = computeDayLeftPosition(day + 1) + mDayViewResources.getCurrentTimeLineSideBuffer() + 1;
 
-        r.top = top - mDayViewResources.getCURRENT_TIME_LINE_TOP_OFFSET();
+        r.top = top - mDayViewResources.getCurrentTimeLineTopOffset();
         r.bottom = r.top + mDayViewResources.getCurrentTimeLine().getIntrinsicHeight();
 
         mDayViewResources.getCurrentTimeLine().setBounds(r);
@@ -2140,12 +2131,12 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
             // For the week view, show a "+", for day view, show "+ New event"
             p.setColor(mDayViewResources.getNewEventHintColor());
             if (mNumDays > 1) {
-                p.setStrokeWidth(mDayViewResources.getNEW_EVENT_WIDTH());
+                p.setStrokeWidth(mDayViewResources.getNewEventWidth());
                 int width = r.right - r.left;
                 int midX = r.left + width / 2;
                 int midY = r.top + mCellHeight / 2;
-                int length = Math.min(mCellHeight, width) - mDayViewResources.getNEW_EVENT_MARGIN() * 2;
-                length = Math.min(length, mDayViewResources.getNEW_EVENT_MAX_LENGTH());
+                int length = Math.min(mCellHeight, width) - mDayViewResources.getNewEventMargin() * 2;
+                length = Math.min(length, mDayViewResources.getNewEventMaxLength());
                 int verticalPadding = (mCellHeight - length) / 2;
                 int horizontalPadding = (width - length) / 2;
                 canvas.drawLine(r.left + horizontalPadding, midY, r.right - horizontalPadding,
@@ -2168,7 +2159,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
     private void drawHours(Rect r, Canvas canvas, Paint p) {
         setupHourTextPaint(p);
 
-        int y = HOUR_GAP + mHoursTextHeight + mDayViewResources.getHOURS_TOP_MARGIN();
+        int y = HOUR_GAP + mHoursTextHeight + mDayViewResources.getHoursTopMargin();
 
         for (int i = 0; i < 24; i++) {
             String time = mHourStrs[i];
@@ -2201,7 +2192,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
                     - mDayViewResources.getDayHeaderBottomMargin();
 
             // Draw day of the month
-            x = computeDayLeftPosition(day + 1) - mDayViewResources.getDAY_HEADER_RIGHT_MARGIN();
+            x = computeDayLeftPosition(day + 1) - mDayViewResources.getDayHeaderRightMargin();
             p.setTextAlign(Align.RIGHT);
             p.setTextSize(mDayViewResources.getDayHeaderFontSize());
 
@@ -2214,17 +2205,17 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
             p.setTypeface(Typeface.DEFAULT);
             canvas.drawText(dayStr, x, y, p);
         } else {
-            float y = mDayViewResources.getOneDayHeaderHeight() - mDayViewResources.getDAY_HEADER_ONE_DAY_BOTTOM_MARGIN();
+            float y = mDayViewResources.getOneDayHeaderHeight() - mDayViewResources.getDayHeaderOneDayBottomMargin();
             p.setTextAlign(Align.LEFT);
 
             // Draw day of the week
-            x = computeDayLeftPosition(day) + mDayViewResources.getDAY_HEADER_ONE_DAY_LEFT_MARGIN();
+            x = computeDayLeftPosition(day) + mDayViewResources.getDayHeaderOneDayLeftMargin();
             p.setTextSize(mDayViewResources.getDayHeaderFontSize());
             p.setTypeface(Typeface.DEFAULT);
             canvas.drawText(dayStr, x, y, p);
 
             // Draw day of the month
-            x += p.measureText(dayStr) + mDayViewResources.getDAY_HEADER_ONE_DAY_RIGHT_MARGIN();
+            x += p.measureText(dayStr) + mDayViewResources.getDayHeaderOneDayRightMargin();
             p.setTextSize(mDayViewResources.getDateHeaderFontSize());
             p.setTypeface(todayIndex == day ? mBold : Typeface.DEFAULT);
             canvas.drawText(dateNumStr, x, y, p);
@@ -2249,7 +2240,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
         y = 0;
         linesIndex = 0;
         for (int hour = 0; hour <= 24; hour++) {
-            mLines[linesIndex++] = mDayViewResources.getGRID_LINE_LEFT_MARGIN();
+            mLines[linesIndex++] = mDayViewResources.getGridLineLeftMargin();
             mLines[linesIndex++] = y;
             mLines[linesIndex++] = stopX;
             mLines[linesIndex++] = y;
@@ -2407,12 +2398,12 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
 
     private void drawAllDayEvents(int firstDay, int numDays, Canvas canvas, Paint p) {
 
-        p.setTextSize(mDayViewResources.getNORMAL_FONT_SIZE());
+        p.setTextSize(mDayViewResources.getNormalFontSize());
         p.setTextAlign(Paint.Align.LEFT);
         Paint eventTextPaint = mEventTextPaint;
 
         final float startY = mDayViewResources.getDayHeaderHeight(mNumDays);
-        final float stopY = startY + mAlldayHeight + mDayViewResources.getALLDAY_TOP_MARGIN();
+        final float stopY = startY + mAlldayHeight + mDayViewResources.getAlldayTopMargin();
         float x = 0;
         int linesIndex = 0;
 
@@ -2421,7 +2412,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
         x = mHoursWidth;
         p.setStrokeWidth(GRID_LINE_INNER_WIDTH);
         // Line bounding the top of the all day area
-        mLines[linesIndex++] = mDayViewResources.getGRID_LINE_LEFT_MARGIN();
+        mLines[linesIndex++] = mDayViewResources.getGridLineLeftMargin();
         mLines[linesIndex++] = startY;
         mLines[linesIndex++] = computeDayLeftPosition(mNumDays);
         mLines[linesIndex++] = startY;
@@ -2437,7 +2428,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
         canvas.drawLines(mLines, 0, linesIndex, p);
         p.setStyle(Style.FILL);
 
-        int y = mDayViewResources.getDayHeaderHeight(mNumDays) + mDayViewResources.getALLDAY_TOP_MARGIN();
+        int y = mDayViewResources.getDayHeaderHeight(mNumDays) + mDayViewResources.getAlldayTopMargin();
         int lastDay = firstDay + numDays - 1;
         final ArrayList<EventLayout> events = mAllDayEvents;
         int numEvents = events.size();
@@ -2449,7 +2440,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
         float numRectangles = mMaxAlldayEvents;
         // Where to cut off drawn allday events
         int allDayEventClip = mDayViewResources.getDayHeaderHeight(mNumDays) + mAlldayHeight
-                + mDayViewResources.getALLDAY_TOP_MARGIN();
+                + mDayViewResources.getAlldayTopMargin();
         // The number of events that weren't drawn in each day
         mSkippedAlldayEvents = new int[numDays];
         if (mMaxAlldayEvents > mMaxUnexpandedAlldayEventCount && !mShowAllAllDayEvents &&
@@ -2463,7 +2454,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
         } else if (mAnimateDayHeight != 0) {
             // clip at the end of the animating space
             allDayEventClip = mDayViewResources.getDayHeaderHeight(mNumDays) + mAnimateDayHeight
-                    + mDayViewResources.getALLDAY_TOP_MARGIN();
+                    + mDayViewResources.getAlldayTopMargin();
         }
 
         int alpha = eventTextPaint.getAlpha();
@@ -2488,8 +2479,8 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
                     drawHeight / numRectangles;
 
             // Prevent a single event from getting too big
-            if (height > mDayViewResources.getMAX_HEIGHT_OF_ONE_ALLDAY_EVENT()) {
-                height = mDayViewResources.getMAX_HEIGHT_OF_ONE_ALLDAY_EVENT();
+            if (height > mDayViewResources.getMaxHeightOfOneAlldayEvent()) {
+                height = mDayViewResources.getMaxHeightOfOneAlldayEvent();
             }
 
             // Leave a one-pixel space between the vertical day lines and the
@@ -2497,7 +2488,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
             event.setLeft(computeDayLeftPosition(startIndex));
             event.setRight(computeDayLeftPosition(endIndex + 1) - DAY_GAP);
             event.setTop(y + height * event.getColumn());
-            event.setBottom(event.getTop() + height - mDayViewResources.getALL_DAY_EVENT_RECT_BOTTOM_MARGIN());
+            event.setBottom(event.getTop() + height - mDayViewResources.getAllDayEventRectBottomMargin());
             if (mMaxAlldayEvents > mMaxUnexpandedAlldayEventCount) {
                 // check if we should skip this event. We skip if it starts
                 // after the clip bound or ends after the skip bound and we're
@@ -2566,14 +2557,14 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
         int x = computeDayLeftPosition(day) + mDayViewResources.getEventAllDayTextLeftMargin();
         int y = (int) (mAlldayHeight - .5f * mDayViewResources.getMinUnexpandedAllDayEventHeight()
                 - .5f
-                * mDayViewResources.getEVENT_SQUARE_WIDTH() + mDayViewResources.getDayHeaderHeight(mNumDays) + mDayViewResources.getALLDAY_TOP_MARGIN());
+                * mDayViewResources.getEventSquareWidth() + mDayViewResources.getDayHeaderHeight(mNumDays) + mDayViewResources.getAlldayTopMargin());
         Rect r = mRect;
         r.top = y;
         r.left = x;
-        r.bottom = y + mDayViewResources.getEVENT_SQUARE_WIDTH();
-        r.right = x + mDayViewResources.getEVENT_SQUARE_WIDTH();
+        r.bottom = y + mDayViewResources.getEventSquareWidth();
+        r.right = x + mDayViewResources.getEventSquareWidth();
         p.setColor(mDayViewResources.getMoreEventsTextColor());
-        p.setStrokeWidth(mDayViewResources.getEVENT_RECT_STROKE_WIDTH());
+        p.setStrokeWidth(mDayViewResources.getEventRectStrokeWidth());
         p.setStyle(Style.STROKE);
         p.setAntiAlias(false);
         canvas.drawRect(r, p);
@@ -2583,8 +2574,8 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
         
         
         
-        y += mDayViewResources.getEVENT_SQUARE_WIDTH();
-        x += mDayViewResources.getEVENT_SQUARE_WIDTH() + mDayViewResources.getEVENT_LINE_PADDING();
+        y += mDayViewResources.getEventSquareWidth();
+        x += mDayViewResources.getEventSquareWidth() + mDayViewResources.getEventLinePadding();
         canvas.drawText(String.format(mDayViewResources.getMoreEventsMonthText(remainingEvents), remainingEvents), x, y, p);
     }
 
@@ -3322,16 +3313,6 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
 
             mSelectionMode = SELECTION_HIDDEN;
 
-            int yLocation =
-                    (int) ((mSelectedEvent.getTop() + mSelectedEvent.getBottom()) / 2);
-            // Y location is affected by the position of the event in the
-            // scrolling
-            // view (mViewStartY) and the presence of all day events
-            // (mFirstCell)
-            if (!mSelectedEvent.getEvent().isAllDay()) {
-                yLocation += (mFirstCell - mViewStartY);
-            }
-            mClickedYLocation = yLocation;
             long clearDelay = (CLICK_DISPLAY_DURATION + mOnDownDelay) -
                     (System.currentTimeMillis() - mDownTouchTime);
             if (clearDelay > 0) {
@@ -3586,7 +3567,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
                 - mDayViewResources.getDayHeaderHeight(mNumDays) - mAlldayHeight;
         mGestureCenterHour = (mViewStartY + gestureCenterInPixels) / (mCellHeight + DAY_GAP);
 
-        mStartingSpanY = Math.max(mDayViewResources.getMIN_Y_SPAN(), Math.abs(detector.getCurrentSpanY()));
+        mStartingSpanY = Math.max(mDayViewResources.getMinYSpan(), Math.abs(detector.getCurrentSpanY()));
         mCellHeightBeforeScaleGesture = mCellHeight;
 
         if (DEBUG_SCALING) {
@@ -3601,7 +3582,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
 
     // ScaleGestureDetector.OnScaleGestureListener
     public boolean onScale(ScaleGestureDetector detector) {
-        float spanY = Math.max(mDayViewResources.getMIN_Y_SPAN(), Math.abs(detector.getCurrentSpanY()));
+        float spanY = Math.max(mDayViewResources.getMinYSpan(), Math.abs(detector.getCurrentSpanY()));
 
         mCellHeight = (int) (mCellHeightBeforeScaleGesture * spanY / mStartingSpanY);
 
@@ -3611,10 +3592,10 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
             mStartingSpanY = spanY;
             mCellHeight = mMinCellHeight;
             mCellHeightBeforeScaleGesture = mMinCellHeight;
-        } else if (mCellHeight > mDayViewResources.getMAX_CELL_HEIGHT()) {
+        } else if (mCellHeight > mDayViewResources.getMaxCellHeight()) {
             mStartingSpanY = spanY;
-            mCellHeight = mDayViewResources.getMAX_CELL_HEIGHT();
-            mCellHeightBeforeScaleGesture = mDayViewResources.getMAX_CELL_HEIGHT();
+            mCellHeight = mDayViewResources.getMaxCellHeight();
+            mCellHeightBeforeScaleGesture = mDayViewResources.getMaxCellHeight();
         }
 
         int gestureCenterInPixels = (int) detector.getFocusY()
@@ -3679,7 +3660,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
                 }
 
                 int bottom = mAlldayHeight + mDayViewResources.getDayHeaderHeight(mNumDays)
-                        + mDayViewResources.getALLDAY_TOP_MARGIN();
+                        + mDayViewResources.getAlldayTopMargin();
                 if (ev.getY() < bottom) {
                     mTouchStartedInAlldayArea = true;
                 } else {
@@ -3877,7 +3858,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
             float minYdistance = 10000.0f; // any large number
             EventLayout closestEvent = null;
             float drawHeight = mAlldayHeight;
-            int yOffset = mDayViewResources.getDayHeaderHeight(mNumDays) + mDayViewResources.getALLDAY_TOP_MARGIN();
+            int yOffset = mDayViewResources.getDayHeaderHeight(mNumDays) + mDayViewResources.getAlldayTopMargin();
             int maxUnexpandedColumn = mMaxUnexpandedAlldayEventCount;
             if (mMaxAlldayEvents > mMaxUnexpandedAlldayEventCount) {
                 // Leave a gap for the 'box +n' text
@@ -3897,8 +3878,8 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
                     float numRectangles = mShowAllAllDayEvents ? mMaxAlldayEvents
                             : mMaxUnexpandedAlldayEventCount;
                     float height = drawHeight / numRectangles;
-                    if (height > mDayViewResources.getMAX_HEIGHT_OF_ONE_ALLDAY_EVENT()) {
-                        height = mDayViewResources.getMAX_HEIGHT_OF_ONE_ALLDAY_EVENT();
+                    if (height > mDayViewResources.getMaxHeightOfOneAlldayEvent()) {
+                        height = mDayViewResources.getMaxHeightOfOneAlldayEvent();
                     }
                     float eventTop = yOffset + height * event.getColumn();
                     float eventBottom = eventTop + height;
