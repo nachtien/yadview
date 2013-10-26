@@ -50,7 +50,7 @@ public class DefaultDayViewFactory implements ViewFactory {
         //using alternate renderer - use alternate dayview resources
         DefaultDayViewResources resources = new DefaultDayViewResources(mContext);
         DefaultUtilFactory utilFactory = new DefaultUtilFactory("yadview_harness.prefs");
-        DayView dv = new DayView(mContext, mViewSwitcher, mEventLoader, 1, utilFactory, resources, new DefaultEventRenderer(resources, utilFactory));
+        DayView dv = new DayView(mContext, mViewSwitcher, mEventLoader, 1, utilFactory, resources, new DefaultEventRenderer(resources, utilFactory), new DefaultDayViewRenderer(resources));
         dv.setLayoutParams(new ViewSwitcher.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         
         //matching previous behaviour

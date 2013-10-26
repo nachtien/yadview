@@ -318,7 +318,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
     private final Paint mPaint = new Paint();
     private final Paint mEventTextPaint = new Paint();
     private final Paint mSelectionPaint = new Paint();
-    private float[] mLines;
+//    private float[] mLines;
 
     private int mFirstDayOfWeek; // First day of the week
 
@@ -334,10 +334,9 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
     private final DefaultEventLoader mEventLoader;
     protected final EventGeometry mEventGeometry;
 
-    private static final float GRID_LINE_INNER_WIDTH = 1;
 
     private static final int DAY_GAP = 1;
-    private static final int HOUR_GAP = 1;
+    
     // This is the standard height of an allday event with no restrictions
     /**
      * This is the minimum desired height of a allday event. When unexpanded,
@@ -544,7 +543,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
 
     public DayView(Context context, ViewSwitcher viewSwitcher,
             DefaultEventLoader eventLoader, int numDays, DefaultUtilFactory utilFactory,
-            DayViewResources resources, EventRenderer eventRenderer) {
+            DayViewResources resources, EventRenderer eventRenderer, DayViewRenderer dayViewRenderer) {
         super(context);
         mContext = context;
         mUtilFactory = utilFactory;
@@ -566,7 +565,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
         mEventLoader = eventLoader;
         mEventGeometry = new EventGeometry();
         mEventGeometry.setMinEventHeight(mDayViewResources.getMinEventHeight());
-        mEventGeometry.setHourGap(HOUR_GAP);
+        mEventGeometry.setHourGap(mDayViewResources.getHourGap());
         mEventGeometry.setCellMargin(DAY_GAP);
         mLastPopupEventID = INVALID_EVENT_ID;
         mViewSwitcher = viewSwitcher;
@@ -586,6 +585,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
         OVERFLING_DISTANCE = vc.getScaledOverflingDistance();
         
         mEventRenderer = eventRenderer;
+        mDayViewRenderer = dayViewRenderer;
 
         init(context);
     }
@@ -705,13 +705,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
         mEarliestStartHour = new int[mNumDays];
         mHasAllDayEvent = new boolean[mNumDays];
 
-        // mLines is the array of points used with Canvas.drawLines() in
-        // drawGridBackground() and drawAllDayEvents(). Its size depends
-        // on the max number of lines that can ever be drawn by any single
-        // drawLines() call in either of those methods.
-        final int maxGridLines = (24 + 1) // max horizontal lines we might draw
-                + (mNumDays + 1); // max vertical lines we might draw
-        mLines = new float[maxGridLines * 4];
+
     }
 
     /**
@@ -827,9 +821,9 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
 
             if (mBaseDate.hour < mFirstHour) {
                 // Above visible region
-                gotoY = mBaseDate.hour * (mCellHeight + HOUR_GAP);
+                gotoY = mBaseDate.hour * (mCellHeight + mDayViewResources.getHourGap());
             } else {
-                lastHour = (mGridAreaHeight - mFirstHourOffset) / (mCellHeight + HOUR_GAP)
+                lastHour = (mGridAreaHeight - mFirstHourOffset) / (mCellHeight + mDayViewResources.getHourGap())
                         + mFirstHour;
 
                 if (mBaseDate.hour >= lastHour) {
@@ -839,13 +833,13 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
                     // grid height (to get the y of the top of the visible
                     // region)
                     gotoY = (int) ((mBaseDate.hour + 1 + mBaseDate.minute / 60.0f)
-                            * (mCellHeight + HOUR_GAP) - mGridAreaHeight);
+                            * (mCellHeight + mDayViewResources.getHourGap()) - mGridAreaHeight);
                 }
             }
 
             if (DEBUG) {
                 Log.e(TAG, "Go " + gotoY + " 1st " + mFirstHour + ":" + mFirstHourOffset + "CH "
-                        + (mCellHeight + HOUR_GAP) + " lh " + lastHour + " gh " + mGridAreaHeight
+                        + (mCellHeight + mDayViewResources.getHourGap()) + " lh " + lastHour + " gh " + mGridAreaHeight
                         + " ymax " + mMaxViewStartY);
             }
 
@@ -1122,7 +1116,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
         mExpandAllDayRect.top = mExpandAllDayRect.bottom
                 - mDayViewResources.getExpandAlldayDrawable().getIntrinsicHeight();
 
-        mNumHours = mGridAreaHeight / (mCellHeight + HOUR_GAP);
+        mNumHours = mGridAreaHeight / (mCellHeight + mDayViewResources.getHourGap());
         mEventGeometry.setHourHeight(mCellHeight);
 
         final long minimumDurationMillis = (long)
@@ -1130,7 +1124,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
         EventLayout.computePositions(mEvents, minimumDurationMillis);
 
         // Compute the top of our reachable view
-        mMaxViewStartY = HOUR_GAP + 24 * (mCellHeight + HOUR_GAP) - mGridAreaHeight;
+        mMaxViewStartY = mDayViewResources.getHourGap() + 24 * (mCellHeight + mDayViewResources.getHourGap()) - mGridAreaHeight;
         if (DEBUG) {
             Log.e(TAG, "mViewStartY: " + mViewStartY);
             Log.e(TAG, "mMaxViewStartY: " + mMaxViewStartY);
@@ -1149,10 +1143,10 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
         // change and that changes the cell height. When we switch dates,
         // we use the mFirstHourOffset from the previous view, but that may
         // be too large for the new view if the cell height is smaller.
-        if (mFirstHourOffset >= mCellHeight + HOUR_GAP) {
-            mFirstHourOffset = mCellHeight + HOUR_GAP - 1;
+        if (mFirstHourOffset >= mCellHeight + mDayViewResources.getHourGap()) {
+            mFirstHourOffset = mCellHeight + mDayViewResources.getHourGap() - 1;
         }
-        mViewStartY = mFirstHour * (mCellHeight + HOUR_GAP) - mFirstHourOffset;
+        mViewStartY = mFirstHour * (mCellHeight + mDayViewResources.getHourGap()) - mFirstHourOffset;
 
         final int eventAreaWidth = mNumDays * (mCellWidth + DAY_GAP);
         // When we get new events we don't want to dismiss the popup unless the
@@ -1561,8 +1555,8 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
      */
     private void computeFirstHour() {
         // Compute the first full hour that is visible on screen
-        mFirstHour = (mViewStartY + mCellHeight + HOUR_GAP - 1) / (mCellHeight + HOUR_GAP);
-        mFirstHourOffset = mFirstHour * (mCellHeight + HOUR_GAP) - mViewStartY;
+        mFirstHour = (mViewStartY + mCellHeight + mDayViewResources.getHourGap() - 1) / (mCellHeight + mDayViewResources.getHourGap());
+        mFirstHourOffset = mFirstHour * (mCellHeight + mDayViewResources.getHourGap()) - mViewStartY;
     }
 
     void adjustHourSelection() {
@@ -1599,7 +1593,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
 
             if (mFirstHour > 0) {
                 mFirstHour -= 1;
-                mViewStartY -= (mCellHeight + HOUR_GAP);
+                mViewStartY -= (mCellHeight + mDayViewResources.getHourGap());
                 if (mViewStartY < 0) {
                     mViewStartY = 0;
                 }
@@ -1610,7 +1604,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
         if (mSelectionHour > mFirstHour + mNumHours - 3) {
             if (mFirstHour < 24 - mNumHours) {
                 mFirstHour += 1;
-                mViewStartY += (mCellHeight + HOUR_GAP);
+                mViewStartY += (mCellHeight + mDayViewResources.getHourGap());
                 if (mViewStartY > mMaxViewStartY) {
                     mViewStartY = mMaxViewStartY;
                 }
@@ -1630,6 +1624,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
             clearCachedEvents();
         }
     };
+    private DayViewRenderer mDayViewRenderer;
 
     /* package */public void reloadEvents() {
         // Protect against this being called before this view has been
@@ -1915,7 +1910,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
         p.setStyle(Style.FILL);
 
         p.setColor(mDayViewResources.getCalendarGridLineInnerHorizontalColor());
-        p.setStrokeWidth(GRID_LINE_INNER_WIDTH);
+        p.setStrokeWidth(mDayViewResources.getGridLineWidth());
         canvas.drawLine(mDayViewResources.getGridLineLeftMargin(), y, right, y, p);
         p.setAntiAlias(true);
     }
@@ -1925,7 +1920,16 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
         int effectiveWidth = mViewWidth - mHoursWidth;
         return day * effectiveWidth / mNumDays + mHoursWidth;
     }
-
+    
+    private int[] computeDayLeftEdge() {
+        int dayStops[] = new int[mNumDays + 1];
+        for(int i = 0; i < dayStops.length; i++){
+            dayStops[i] = computeDayLeftPosition(i);
+        }
+        return dayStops;
+    }
+    
+    
     private void drawAllDayHighlights(Rect r, Canvas canvas, Paint p) {
         if (mFutureBgColor != 0) {
             // First, color the labels area light gray
@@ -2046,14 +2050,14 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
         if (mFirstHour >= 12) {
             text = mPmString;
         }
-        int y = mFirstCell + mFirstHourOffset + 2 * mHoursTextHeight + HOUR_GAP;
+        int y = mFirstCell + mFirstHourOffset + 2 * mHoursTextHeight + mDayViewResources.getHourGap();
         canvas.drawText(text, mDayViewResources.getHoursLeftMargin(), y, p);
 
         if (mFirstHour < 12 && mFirstHour + mNumHours > 12) {
             // Also draw the "PM"
             text = mPmString;
-            y = mFirstCell + mFirstHourOffset + (12 - mFirstHour) * (mCellHeight + HOUR_GAP)
-                    + 2 * mHoursTextHeight + HOUR_GAP;
+            y = mFirstCell + mFirstHourOffset + (12 - mFirstHour) * (mCellHeight + mDayViewResources.getHourGap())
+                    + 2 * mHoursTextHeight + mDayViewResources.getHourGap();
             canvas.drawText(text, mDayViewResources.getHoursLeftMargin(), y, p);
         }
     }
@@ -2093,10 +2097,10 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
         for (int day = 0; day < mNumDays; day++, cell++) {
             // TODO Wow, this needs cleanup. drawEvents loop through all the
             // events on every call.
-            drawEvents(cell, day, HOUR_GAP, canvas, p);
+            drawEvents(cell, day, mDayViewResources.getHourGap(), canvas, p);
             // If this is today
             if (cell == mTodayJulianDay) {
-                int lineY = mCurrentTime.hour * (mCellHeight + HOUR_GAP)
+                int lineY = mCurrentTime.hour * (mCellHeight + mDayViewResources.getHourGap())
                         + ((mCurrentTime.minute * mCellHeight) / 60) + 1;
 
                 // And the current time shows up somewhere on the screen
@@ -2115,8 +2119,8 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
         // Draw a highlight on the selected hour (if needed)
         if (mSelectionMode != SELECTION_HIDDEN && !mSelectionAllday) {
             int daynum = mSelectionDay - mFirstJulianDay;
-            r.top = mSelectionHour * (mCellHeight + HOUR_GAP);
-            r.bottom = r.top + mCellHeight + HOUR_GAP;
+            r.top = mSelectionHour * (mCellHeight + mDayViewResources.getHourGap());
+            r.bottom = r.top + mCellHeight + mDayViewResources.getHourGap();
             r.left = computeDayLeftPosition(daynum) + 1;
             r.right = computeDayLeftPosition(daynum + 1) + 1;
 
@@ -2124,7 +2128,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
 
             // Draw the highlight on the grid
             p.setColor(mDayViewResources.getCalendarGridAreaSelected());
-            r.top += HOUR_GAP;
+            r.top += mDayViewResources.getHourGap();
             r.right -= DAY_GAP;
             p.setAntiAlias(false);
             canvas.drawRect(r, p);
@@ -2161,12 +2165,12 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
     private void drawHours(Rect r, Canvas canvas, Paint p) {
         setupHourTextPaint(p);
 
-        int y = HOUR_GAP + mHoursTextHeight + mDayViewResources.getHoursTopMargin();
+        int y = mDayViewResources.getHourGap() + mHoursTextHeight + mDayViewResources.getHoursTopMargin();
 
         for (int i = 0; i < 24; i++) {
             String time = mHourStrs[i];
             canvas.drawText(time, mDayViewResources.getHoursLeftMargin(), y, p);
-            y += mCellHeight + HOUR_GAP;
+            y += mCellHeight + mDayViewResources.getHourGap();
         }
     }
 
@@ -2227,47 +2231,18 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
     private void drawGridBackground(Rect r, Canvas canvas, Paint p) {
         Paint.Style savedStyle = p.getStyle();
 
-        final float stopX = computeDayLeftPosition(mNumDays);
-        float y = 0;
-        final float deltaY = mCellHeight + HOUR_GAP;
-        int linesIndex = 0;
         final float startY = 0;
-        final float stopY = HOUR_GAP + 24 * (mCellHeight + HOUR_GAP);
-        float x = mHoursWidth;
-
-        // Draw the inner horizontal grid lines
-        p.setColor(mDayViewResources.getCalendarGridLineInnerHorizontalColor());
-        p.setStrokeWidth(GRID_LINE_INNER_WIDTH);
-        p.setAntiAlias(false);
-        y = 0;
-        linesIndex = 0;
-        for (int hour = 0; hour <= 24; hour++) {
-            mLines[linesIndex++] = mDayViewResources.getGridLineLeftMargin();
-            mLines[linesIndex++] = y;
-            mLines[linesIndex++] = stopX;
-            mLines[linesIndex++] = y;
-            y += deltaY;
-        }
-        if (mDayViewResources.getCalendarGridLineInnerVerticalColor() != mDayViewResources.getCalendarGridLineInnerHorizontalColor()) {
-            canvas.drawLines(mLines, 0, linesIndex, p);
-            linesIndex = 0;
-            p.setColor(mDayViewResources.getCalendarGridLineInnerVerticalColor());
-        }
-
-        // Draw the inner vertical grid lines
-        for (int day = 0; day <= mNumDays; day++) {
-            x = computeDayLeftPosition(day);
-            mLines[linesIndex++] = x;
-            mLines[linesIndex++] = startY;
-            mLines[linesIndex++] = x;
-            mLines[linesIndex++] = stopY;
-        }
-        canvas.drawLines(mLines, 0, linesIndex, p);
-
+        final float stopY = mDayViewResources.getHourGap() + 24 * (mCellHeight + mDayViewResources.getHourGap());
+        
+        int[] dayStops = computeDayLeftEdge();
+        
+        mDayViewRenderer.drawGridLines(canvas, p, dayStops, startY, stopY, mCellHeight);
+        
         // Restore the saved style.
         p.setStyle(savedStyle);
         p.setAntiAlias(true);
     }
+
 
     /**
      * @param r
@@ -2289,7 +2264,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
         // Draw background for grid area
         if (mNumDays == 1 && todayIndex == 0) {
             // Draw a white background for the time later than current time
-            int lineY = mCurrentTime.hour * (mCellHeight + HOUR_GAP)
+            int lineY = mCurrentTime.hour * (mCellHeight + mDayViewResources.getHourGap())
                     + ((mCurrentTime.minute * mCellHeight) / 60) + 1;
             if (lineY < mViewStartY + mViewHeight) {
                 lineY = Math.max(lineY, mViewStartY);
@@ -2303,7 +2278,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
         } else if (todayIndex >= 0 && todayIndex < mNumDays) {
             // Draw today with a white background for the time later than
             // current time
-            int lineY = mCurrentTime.hour * (mCellHeight + HOUR_GAP)
+            int lineY = mCurrentTime.hour * (mCellHeight + mDayViewResources.getHourGap())
                     + ((mCurrentTime.minute * mCellHeight) / 60) + 1;
             if (lineY < mViewStartY + mViewHeight) {
                 lineY = Math.max(lineY, mViewStartY);
@@ -2384,8 +2359,8 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
 
     private Rect getCurrentSelectionPosition() {
         Rect box = new Rect();
-        box.top = mSelectionHour * (mCellHeight + HOUR_GAP);
-        box.bottom = box.top + mCellHeight + HOUR_GAP;
+        box.top = mSelectionHour * (mCellHeight + mDayViewResources.getHourGap());
+        box.bottom = box.top + mCellHeight + mDayViewResources.getHourGap();
         int daynum = mSelectionDay - mFirstJulianDay;
         box.left = computeDayLeftPosition(daynum) + 1;
         box.right = computeDayLeftPosition(daynum + 1);
@@ -2400,36 +2375,15 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
 
     private void drawAllDayEvents(int firstDay, int numDays, Canvas canvas, Paint p) {
 
-        p.setTextSize(mDayViewResources.getNormalFontSize());
-        p.setTextAlign(Paint.Align.LEFT);
-        Paint eventTextPaint = mEventTextPaint;
 
         final float startY = mDayViewResources.getDayHeaderHeight(mNumDays);
         final float stopY = startY + mAlldayHeight + mDayViewResources.getAlldayTopMargin();
-        float x = 0;
-        int linesIndex = 0;
 
-        // Draw the inner vertical grid lines
-        p.setColor(mDayViewResources.getCalendarGridLineInnerVerticalColor());
-        x = mHoursWidth;
-        p.setStrokeWidth(GRID_LINE_INNER_WIDTH);
-        // Line bounding the top of the all day area
-        mLines[linesIndex++] = mDayViewResources.getGridLineLeftMargin();
-        mLines[linesIndex++] = startY;
-        mLines[linesIndex++] = computeDayLeftPosition(mNumDays);
-        mLines[linesIndex++] = startY;
-
-        for (int day = 0; day <= mNumDays; day++) {
-            x = computeDayLeftPosition(day);
-            mLines[linesIndex++] = x;
-            mLines[linesIndex++] = startY;
-            mLines[linesIndex++] = x;
-            mLines[linesIndex++] = stopY;
-        }
-        p.setAntiAlias(false);
-        canvas.drawLines(mLines, 0, linesIndex, p);
+        mDayViewRenderer.drawAllDayGridLines(canvas, p, computeDayLeftEdge(), startY, stopY);
+        
         p.setStyle(Style.FILL);
 
+        
         int y = mDayViewResources.getDayHeaderHeight(mNumDays) + mDayViewResources.getAlldayTopMargin();
         int lastDay = firstDay + numDays - 1;
         final ArrayList<EventLayout> events = mAllDayEvents;
@@ -2458,7 +2412,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
             allDayEventClip = mDayViewResources.getDayHeaderHeight(mNumDays) + mAnimateDayHeight
                     + mDayViewResources.getAlldayTopMargin();
         }
-
+        Paint eventTextPaint = mEventTextPaint;
         int alpha = eventTextPaint.getAlpha();
         eventTextPaint.setAlpha(mEventsAlpha);
         for (int i = 0; i < numEvents; i++) {
@@ -2647,7 +2601,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
 
         // Use the selected hour as the selection region
         Rect selectionArea = mSelectionRect;
-        selectionArea.top = top + mSelectionHour * (cellHeight + HOUR_GAP);
+        selectionArea.top = top + mSelectionHour * (cellHeight + mDayViewResources.getHourGap());
         selectionArea.bottom = selectionArea.top + cellHeight;
         selectionArea.left = left;
         selectionArea.right = selectionArea.left + cellWidth;
@@ -3603,7 +3557,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
         int gestureCenterInPixels = (int) detector.getFocusY()
                 - mDayViewResources.getDayHeaderHeight(mNumDays) - mAlldayHeight;
         mViewStartY = (int) (mGestureCenterHour * (mCellHeight + DAY_GAP)) - gestureCenterInPixels;
-        mMaxViewStartY = HOUR_GAP + 24 * (mCellHeight + HOUR_GAP) - mGridAreaHeight;
+        mMaxViewStartY = mDayViewResources.getHourGap() + 24 * (mCellHeight + mDayViewResources.getHourGap()) - mGridAreaHeight;
 
         if (DEBUG_SCALING) {
             float ViewStartHour = mViewStartY / (float) (mCellHeight + DAY_GAP);
@@ -3808,7 +3762,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
                                                       */
             } else {
                 setSelectedHour(mSelectionHour +
-                        (adjustedY - mFirstHourOffset) / (mCellHeight + HOUR_GAP));
+                        (adjustedY - mFirstHourOffset) / (mCellHeight + mDayViewResources.getHourGap()));
             }
 
             mSelectionAllday = false;

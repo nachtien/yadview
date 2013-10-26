@@ -28,11 +28,8 @@ import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
 import com.google.code.yadview.DayView;
-import com.google.code.yadview.DayViewOnCreateContextMenuListener;
 import com.google.code.yadview.DayViewOnKeyListener;
-import com.google.code.yadview.DayViewOnLongClickListener;
 import com.google.code.yadview.EventResource;
-import com.google.code.yadview.events.ShowDateInCurrentViewEvent;
 import com.google.code.yadview.events.ShowDateInDayViewEvent;
 import com.google.code.yadview.events.ViewEventEvent;
 import com.google.code.yadview.impl.DefaultDayViewFactory;
@@ -66,7 +63,7 @@ public class YadviewHarnessDayViewFactory extends DefaultDayViewFactory {
     public View makeView() {
         DefaultDayViewResources resources = new AlternateRendererDayViewResources(getContext());
         DefaultUtilFactory utilFactory = new DefaultUtilFactory("yadview_harness.prefs");
-        DayView dv = new DayView(getContext(),getViewSwitcher(), getEventLoader(), 7, utilFactory, resources, new  AlternateEventRenderer(getContext(), resources,utilFactory));
+        DayView dv = new DayView(getContext(),getViewSwitcher(), getEventLoader(), 1, utilFactory, resources, new  AlternateEventRenderer(getContext(), resources,utilFactory), new AlternateDayViewRenderer(resources));
         dv.setLayoutParams(new ViewSwitcher.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         
 //        dv.setOnCreateContextMenuListener(new DayViewOnCreateContextMenuListener(getContext(), dv, utilFactory, resources, getEventResource()));

@@ -144,4 +144,14 @@ public interface DayViewResources {
     public int getEventPopupTitleTextFieldID();
     public int getEventPopupReminderIconID();
     public int getEventPopupRepeatIconID();
+    
+    
+    public float getGridLineWidth();
+    
+
+    /**
+     * 
+     * @return Number of pixels in-between two rows of hours on the schedule. Default returns 1.
+     */
+    int getHourGap();
 }

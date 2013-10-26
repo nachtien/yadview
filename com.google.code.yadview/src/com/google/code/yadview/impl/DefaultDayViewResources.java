@@ -58,6 +58,9 @@ public class DefaultDayViewResources implements DayViewResources {
     private static int NEW_EVENT_WIDTH = 2;
     private static int NEW_EVENT_MAX_LENGTH = 16;
     private static int MAX_UNEXPANDED_ALLDAY_HEIGHT =(int) (28f * 4);
+    private static final float GRID_LINE_INNER_WIDTH = 1;
+
+    private static final int HOUR_GAP = 1;
     
     static final String[] s12HoursNoAmPm = {
             "12", "1", "2", "3", "4",
@@ -734,4 +737,16 @@ public class DefaultDayViewResources implements DayViewResources {
     public int getEventPopupRepeatIconID() {
         return R.id.repeat_icon ;
     }
+
+    @Override
+    public float getGridLineWidth() {
+        return GRID_LINE_INNER_WIDTH;
+    }
+    
+    @Override
+    public int getHourGap() {
+        return HOUR_GAP;
+    }
+    
+    
 }

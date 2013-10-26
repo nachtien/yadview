@@ -80,7 +80,7 @@ public class AlternateEventRenderer implements EventRenderer {
         ll.setBottom(height);
         
         mEventTitle.setText(event.getEvent().getTitle());
-        ((GradientDrawable)mEventColourPanel.getBackground()).setColor(Color.BLACK | event.getEvent().getColor());
+        ((GradientDrawable)mEventColourPanel.getBackground()).setColor(0xa0000000 | event.getEvent().getColor());
 //        mEventColourPanel.setBackgroundColor(Color.BLACK | event.getEvent().getColor());
 
         
