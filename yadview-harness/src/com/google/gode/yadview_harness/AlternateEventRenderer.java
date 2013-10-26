@@ -1,4 +1,19 @@
+/*
+Copyright 2013 Chris Pope
 
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+ 
+ */
 package com.google.gode.yadview_harness;
 
 import java.util.ArrayList;
@@ -9,6 +24,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Rect;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.ShapeDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.MeasureSpec;
@@ -63,7 +80,8 @@ public class AlternateEventRenderer implements EventRenderer {
         ll.setBottom(height);
         
         mEventTitle.setText(event.getEvent().getTitle());
-        mEventColourPanel.setBackgroundColor(Color.BLACK | event.getEvent().getColor());
+        ((GradientDrawable)mEventColourPanel.getBackground()).setColor(Color.BLACK | event.getEvent().getColor());
+//        mEventColourPanel.setBackgroundColor(Color.BLACK | event.getEvent().getColor());
 
         
         mTemplateView.draw(canvas);
@@ -80,7 +98,7 @@ public class AlternateEventRenderer implements EventRenderer {
             
             Paint p2 = new Paint(p);
             int color = mDayViewResources.getClickedColor();
-            p2.setStrokeWidth(mDayViewResources.getEVENT_RECT_STROKE_WIDTH());
+            p2.setStrokeWidth(mDayViewResources.getEventRectStrokeWidth());
             p2.setColor(color);
             p2.setStyle(Style.FILL);
             p2.setAlpha(75);
@@ -100,7 +118,7 @@ public class AlternateEventRenderer implements EventRenderer {
 
         @Override
         public float getMinEventHeight() {
-            return 150;
+            return 50;
         }
         
         @Override
@@ -118,8 +136,9 @@ public class AlternateEventRenderer implements EventRenderer {
             return getSingleAlldayHeight();
         }
         
+        
         @Override
-        public int getMAX_HEIGHT_OF_ONE_ALLDAY_EVENT() {
+        public int getMaxHeightOfOneAlldayEvent() {
             return getSingleAlldayHeight();
         }
         

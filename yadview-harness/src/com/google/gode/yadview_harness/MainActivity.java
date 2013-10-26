@@ -1,3 +1,21 @@
+/*
+Copyright 2013 Chris Pope
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+ 
+ */
+
+
 package com.google.gode.yadview_harness;
 
 import android.app.Activity;
@@ -17,8 +35,8 @@ public class MainActivity extends Activity  {
     private YadviewHarnessDayViewFactory mViewFactory;
 
 	public MainActivity() {
-//	    mEventResource = new MockEventResource();
-	    mEventResource = new DefaultEventResource(this, new DefaultUtilFactory("yadview_harness.prefs"));
+	    mEventResource = new MockEventResource();
+//	    mEventResource = new DefaultEventResource(this, new DefaultUtilFactory("yadview_harness.prefs"));
 		
 		
 	}
@@ -30,9 +48,7 @@ public class MainActivity extends Activity  {
 		
 		ViewSwitcher vs = (ViewSwitcher)findViewById(R.id.view_switcher);
 		mViewFactory = new YadviewHarnessDayViewFactory(vs, mEventResource, this);
-		
 		vs.setFactory(mViewFactory);
-		
 		DayView dv = (DayView)vs.getCurrentView();
         Time today = new Time();
         today.setToNow();
