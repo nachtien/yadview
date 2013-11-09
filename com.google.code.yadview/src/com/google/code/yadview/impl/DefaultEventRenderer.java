@@ -51,7 +51,7 @@ public class DefaultEventRenderer implements EventRenderer {
     private DayViewResources mDayViewResources;
 	private Rect mRect = new Rect();
 	private DefaultUtilFactory mUtilFactory;
-	private int mEventsAlpha;
+	private int mEventsAlpha = 255;
 	
 	private Map<EventLayout, StaticLayout> mLayoutMap = new HashMap<EventLayout, StaticLayout>();
 	
