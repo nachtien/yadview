@@ -1459,6 +1459,8 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
             start.monthDay -= mNumDays;
         }
 
+        start.normalize(true);
+        
         Time newSelected = start;
 
         if (mNumDays == 7) {
