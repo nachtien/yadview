@@ -26,8 +26,6 @@ import android.widget.ViewSwitcher;
 
 import com.google.code.yadview.DayView;
 import com.google.code.yadview.EventResource;
-import com.google.code.yadview.impl.DefaultEventResource;
-import com.google.code.yadview.impl.DefaultUtilFactory;
 
 public class MainActivity extends Activity  {
 

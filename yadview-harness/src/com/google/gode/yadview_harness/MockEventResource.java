@@ -86,6 +86,17 @@ public class MockEventResource implements EventResource {
                 e1.setTitle("testevent2-allday");
                 events.add(e1);
             }
+            
+            if ((startJulianDay + i) % 4 == 0) {
+                e1 = new Event();
+                e1.setAllDay(true);
+                e1.setEndDay(startJulianDay + i);
+                e1.setId(2);
+                e1.setStartDay(startJulianDay + i);
+                e1.setColor(randomColour());
+                e1.setTitle("testevent3-allday");
+                events.add(e1);
+            }
 
             e1 = new Event();
             e1.setAllDay(false);

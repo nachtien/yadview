@@ -29,12 +29,14 @@ import android.widget.ViewSwitcher;
 
 import com.google.code.yadview.DayView;
 import com.google.code.yadview.DayViewOnKeyListener;
+import com.google.code.yadview.DayViewRenderer;
+import com.google.code.yadview.DayViewScrollingController;
+import com.google.code.yadview.EventRenderer;
 import com.google.code.yadview.EventResource;
 import com.google.code.yadview.events.ShowDateInDayViewEvent;
 import com.google.code.yadview.events.ViewEventEvent;
 import com.google.code.yadview.impl.DefaultDayViewFactory;
-import com.google.code.yadview.impl.DefaultDayViewResources;
-import com.google.code.yadview.impl.DefaultUtilFactory;
+import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.google.gode.yadview_harness.AlternateEventRenderer.AlternateRendererDayViewResources;
 
@@ -47,7 +49,7 @@ public class YadviewHarnessDayViewFactory extends DefaultDayViewFactory {
     private Activity mActivity;
 
     public YadviewHarnessDayViewFactory(ViewSwitcher vs, EventResource eventResource, Activity context) {
-        super(vs, eventResource, context);
+        super(context, vs, eventResource, "yadview_harness.prefs", new AlternateRendererDayViewResources(context));
         
         mActivity = context;
         
@@ -55,15 +57,12 @@ public class YadviewHarnessDayViewFactory extends DefaultDayViewFactory {
         mOutAnimationForward = AnimationUtils.loadAnimation(context, R.anim.slide_left_out);
         mInAnimationBackward = AnimationUtils.loadAnimation(context, R.anim.slide_right_in);
         mOutAnimationBackward = AnimationUtils.loadAnimation(context, R.anim.slide_right_out);
-
-
     }
     
     @Override
     public View makeView() {
-        DefaultDayViewResources resources = new AlternateRendererDayViewResources(getContext());
-        DefaultUtilFactory utilFactory = new DefaultUtilFactory("yadview_harness.prefs");
-        DayView dv = new DayView(getContext(),getViewSwitcher(), getEventLoader(), 1, utilFactory, resources, new  AlternateEventRenderer(getContext(), resources,utilFactory), new AlternateDayViewRenderer(resources));
+        
+        DayView dv = new DayView(getContext(),getViewSwitcher(), 1, getEventLoader(), getResources(), this);
         dv.setLayoutParams(new ViewSwitcher.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         
 //        dv.setOnCreateContextMenuListener(new DayViewOnCreateContextMenuListener(getContext(), dv, utilFactory, resources, getEventResource()));
@@ -74,10 +73,28 @@ public class YadviewHarnessDayViewFactory extends DefaultDayViewFactory {
         
         mActivity.registerForContextMenu(dv);
         
-        
         return dv;
     }
     
+//    @Override
+//    public DayViewScrollingController buildScrollingController(EventBus eventBus) {
+//        return new DayViewScrollingController(eventBus){
+//            @Override
+//            public void scrolled(float x, float y, float deltaX, float deltaY) {
+//                super.scrolled(x, y, 0, deltaY);
+//            }
+//        };
+//    }
+    
+    @Override
+    public EventRenderer buildEventRenderer() {
+        return new  AlternateEventRenderer(getContext(), getResources(),this);
+    }
+    
+    @Override
+    public DayViewRenderer buildDayViewRenderer() {
+        return new AlternateDayViewRenderer(getResources());
+    }
     
     @Subscribe
     public void handleShowDateEvent(ViewEventEvent e){

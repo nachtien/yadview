@@ -20,24 +20,22 @@ import java.util.ArrayList;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.graphics.Rect;
 import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.ShapeDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.MeasureSpec;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.google.code.yadview.DayViewDependencyFactory;
 import com.google.code.yadview.DayViewResources;
 import com.google.code.yadview.Event;
 import com.google.code.yadview.EventLayout;
 import com.google.code.yadview.EventRenderer;
 import com.google.code.yadview.impl.DefaultDayViewResources;
-import com.google.code.yadview.impl.DefaultUtilFactory;
 
 public class AlternateEventRenderer implements EventRenderer {
 
@@ -47,7 +45,7 @@ public class AlternateEventRenderer implements EventRenderer {
     private TextView mEventTitle;
     private View mEventColourPanel;
 
-    public AlternateEventRenderer(Context ctx, DayViewResources dayViewResources, DefaultUtilFactory utilFactory) {
+    public AlternateEventRenderer(Context ctx, DayViewResources dayViewResources, DayViewDependencyFactory utilFactory) {
         mDayViewResources = dayViewResources;
         mContext = ctx;
         
@@ -123,7 +121,7 @@ public class AlternateEventRenderer implements EventRenderer {
         
         @Override
         public int getSingleAlldayHeight() {
-            return 150;
+            return 50;
         }
 
         @Override

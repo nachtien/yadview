@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.code.yadview.DayViewDependencyFactory;
 import com.google.code.yadview.DayViewResources;
 import com.google.code.yadview.Event;
 import com.google.code.yadview.EventLayout;
@@ -50,15 +51,15 @@ public class DefaultEventRenderer implements EventRenderer {
 	
     private DayViewResources mDayViewResources;
 	private Rect mRect = new Rect();
-	private DefaultUtilFactory mUtilFactory;
+	private DayViewDependencyFactory mDependencyFactory;
 	private int mEventsAlpha;
 	
 	private Map<EventLayout, StaticLayout> mLayoutMap = new HashMap<EventLayout, StaticLayout>();
 	
 
-	public DefaultEventRenderer(DayViewResources dayViewResources, DefaultUtilFactory utilFactory) {
+	public DefaultEventRenderer(DayViewResources dayViewResources, DayViewDependencyFactory dependencyFactory) {
     	mDayViewResources = dayViewResources;
-    	mUtilFactory = utilFactory;
+    	mDependencyFactory = dependencyFactory;
 	}
 
 	@Override
@@ -161,7 +162,7 @@ public class DefaultEventRenderer implements EventRenderer {
                 break;
             case Attendees.ATTENDEE_STATUS_DECLINED:
                 if (!isSelectedEvent) {
-                    color = mUtilFactory.buildRenderingUtils().getDeclinedColorFromColor(color);
+                    color = mDependencyFactory.buildRenderingUtils().getDeclinedColorFromColor(color);
                 }
             case Attendees.ATTENDEE_STATUS_NONE: // Your own events
             case Attendees.ATTENDEE_STATUS_ACCEPTED:
@@ -248,7 +249,7 @@ public class DefaultEventRenderer implements EventRenderer {
                     break;
                 case Attendees.ATTENDEE_STATUS_DECLINED:
                     paint.setColor(mDayViewResources.getEventTextColor());
-                    paint.setAlpha(mUtilFactory.buildRenderingUtils().getDeclinedEventTextAlpha());
+                    paint.setAlpha(mDependencyFactory.buildRenderingUtils().getDeclinedEventTextAlpha());
                     break;
                 case Attendees.ATTENDEE_STATUS_NONE: // Your own events
                 case Attendees.ATTENDEE_STATUS_ACCEPTED:

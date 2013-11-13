@@ -39,6 +39,7 @@ import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.Log;
 
+import com.google.code.yadview.DayViewDependencyFactory;
 import com.google.code.yadview.Event;
 import com.google.code.yadview.EventResource;
 import com.google.code.yadview.Predicate;
@@ -141,11 +142,11 @@ public class DefaultEventResource implements EventResource {
 
     private Context mContext;
 
-    private DefaultUtilFactory mUtilFactory;
+    private DayViewDependencyFactory mDependencyFactory;
 
-    public DefaultEventResource(Context ctx, DefaultUtilFactory utilFactory) {
+    public DefaultEventResource(Context ctx, DayViewDependencyFactory dependencyFactory) {
         mContext = ctx;
-        mUtilFactory = utilFactory;
+        mDependencyFactory = dependencyFactory;
     }
 
     @Override
@@ -172,7 +173,7 @@ public class DefaultEventResource implements EventResource {
             // required for correctness, it just adds a nice touch.
 
             // Respect the preference to show/hide declined events
-            SharedPreferences prefs = mUtilFactory.buildPreferencesUtils().getSharedPreferences(mContext);
+            SharedPreferences prefs = mDependencyFactory.buildPreferencesUtils().getSharedPreferences(mContext);
             boolean hideDeclined = prefs.getBoolean(KEY_HIDE_DECLINED, false);
 
             String where = EVENTS_WHERE;
@@ -235,7 +236,7 @@ public class DefaultEventResource implements EventResource {
 
         if (!cEvents.isNull(PROJECTION_COLOR_INDEX)) {
             // Read the color from the database
-            e.setColor(mUtilFactory.buildRenderingUtils().getDisplayColorFromColor(cEvents.getInt(PROJECTION_COLOR_INDEX)));
+            e.setColor(mDependencyFactory.buildRenderingUtils().getDisplayColorFromColor(cEvents.getInt(PROJECTION_COLOR_INDEX)));
         } else {
             e.setColor(mNoColorColor);
         }

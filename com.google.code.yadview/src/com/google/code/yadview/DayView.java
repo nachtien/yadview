@@ -42,7 +42,6 @@ import android.graphics.Paint.Style;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.os.Handler;
-import android.provider.CalendarContract.Calendars;
 import android.text.StaticLayout;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
@@ -71,20 +70,25 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
+import com.google.code.yadview.DayViewScrollingController.HorizontalScrollDirection;
+import com.google.code.yadview.DayViewScrollingController.HorizontalScrollingStartedEvent;
+import com.google.code.yadview.DayViewScrollingController.ScrollEvent;
+import com.google.code.yadview.DayViewScrollingController.VerticalScrollingStartedEvent;
 import com.google.code.yadview.events.CreateEventEvent;
 import com.google.code.yadview.events.ShowDateInCurrentViewEvent;
 import com.google.code.yadview.events.ShowDateInDayViewEvent;
 import com.google.code.yadview.events.UpdateTitleEvent;
 import com.google.code.yadview.events.ViewEventEvent;
-import com.google.code.yadview.impl.DefaultEventLoader;
-import com.google.code.yadview.impl.DefaultUtilFactory;
 import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 
 /**
  * View for multi-day view. So far only 1 and 7 day have been tested.
  */
 public class DayView extends View implements ScaleGestureDetector.OnScaleGestureListener, View.OnClickListener
 {
+
+
     private static String TAG = "DayView";
     private static boolean DEBUG = false;
     private static boolean DEBUG_SCALING = false;
@@ -105,7 +109,6 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
 
 
     private boolean mOnFlingCalled;
-    private boolean mStartingScroll = false;
     protected boolean mPaused = true;
     private Handler mHandler;
     /**
@@ -154,7 +157,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
 
     private EventLayout mClickedEvent; // The event the user clicked on
     private EventLayout mSavedClickedEvent;
-    private static int mOnDownDelay;
+    private int mOnDownDelay;
     private long mDownTouchTime;
 
     private int mEventsAlpha = 255;
@@ -166,14 +169,14 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
 
     private EventBus mEventBus = new EventBus(); 
     private DayViewResources mDayViewResources;
-    private final DefaultUtilFactory mUtilFactory;
+
 
     public static final String KEY_DEFAULT_CELL_HEIGHT = "preferences_default_cell_height";
 
     private final Runnable mTZUpdater = new Runnable() {
         @Override
         public void run() {
-            String tz = mUtilFactory.buildTimezoneUtils().getTimeZone(mContext, this);
+            String tz = mDependencyFactory.buildTimezoneUtils().getTimeZone(mContext, this);
             mBaseDate.timezone = tz;
             mBaseDate.normalize(true);
             mCurrentTime.switchTimezone(tz);
@@ -331,7 +334,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
 
     private boolean mRemeasure = true;
 
-    private final DefaultEventLoader mEventLoader;
+    private final DayViewEventLoader mEventLoader;
     protected final EventGeometry mEventGeometry;
 
 
@@ -377,8 +380,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
     private static int mCellHeight = 0; // shared among all DayViews
     private static int mMinCellHeight = 32;
     private int mScrollStartY;
-    private int mPreviousDirection;
-    private static int mScaledPagingTouchSlop = 0;
+    private int mScaledPagingTouchSlop = 0;
 
     /**
      * Vertical distance or span between the two touch points at the start of a
@@ -434,7 +436,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
     /**
      * The number of allDay events at which point we start hiding allDay events.
      */
-    private int mMaxUnexpandedAlldayEventCount = 4;
+    private int mMaxUnexpandedAlldayEventCount = 1;
     /**
      * Whether or not to expand the allDay area to fill the screen
      */
@@ -471,28 +473,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
 
     ScaleGestureDetector mScaleGestureDetector;
 
-    /**
-     * The initial state of the touch mode when we enter this view.
-     */
-    private static final int TOUCH_MODE_INITIAL_STATE = 0;
 
-    /**
-     * Indicates we just received the touch event and we are waiting to see if
-     * it is a tap or a scroll gesture.
-     */
-    private static final int TOUCH_MODE_DOWN = 1;
-
-    /**
-     * Indicates the touch gesture is a vertical scroll
-     */
-    private static final int TOUCH_MODE_VSCROLL = 0x20;
-
-    /**
-     * Indicates the touch gesture is a horizontal scroll
-     */
-    private static final int TOUCH_MODE_HSCROLL = 0x40;
-
-    private int mTouchMode = TOUCH_MODE_INITIAL_STATE;
 
     /**
      * The selection modes are HIDDEN, PRESSED, SELECTED, and LONGPRESS.
@@ -505,10 +486,6 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
     private int mSelectionMode = SELECTION_HIDDEN;
 
     private boolean mScrolling = false;
-
-    // Pixels scrolled
-    private float mInitialScrollX;
-    private float mInitialScrollY;
 
     private boolean mAnimateToday = false;
     private int mAnimateTodayAlpha = 0;
@@ -540,13 +517,15 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
     private boolean mIsAccessibilityEnabled = false;
     private boolean mTouchExplorationEnabled = false;
 	private EventRenderer mEventRenderer;
+    private DayViewScrollingController mScrollController;
+    private DayViewDependencyFactory mDependencyFactory;
 
     public DayView(Context context, ViewSwitcher viewSwitcher,
-            DefaultEventLoader eventLoader, int numDays, DefaultUtilFactory utilFactory,
-            DayViewResources resources, EventRenderer eventRenderer, DayViewRenderer dayViewRenderer) {
+            int numDays, DayViewEventLoader eventLoader, DayViewResources resources,
+            DayViewDependencyFactory dependencyFactory) {
         super(context);
         mContext = context;
-        mUtilFactory = utilFactory;
+        mDependencyFactory = dependencyFactory;
         mDayViewResources = resources;
 
         initAccessibilityVariables();
@@ -572,7 +551,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
         mGestureDetector = new GestureDetector(context, new CalendarGestureListener());
         mScaleGestureDetector = new ScaleGestureDetector(getContext(), this);
         if (mCellHeight == 0) {
-            mCellHeight = mUtilFactory.buildPreferencesUtils().getSharedPreference(mContext,
+            mCellHeight = mDependencyFactory.buildPreferencesUtils().getSharedPreference(mContext,
                     KEY_DEFAULT_CELL_HEIGHT, mDayViewResources.getDefaultCellHeight());
         }
         mScroller = new OverScroller(context);
@@ -584,8 +563,10 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
         mOnDownDelay = ViewConfiguration.getTapTimeout();
         OVERFLING_DISTANCE = vc.getScaledOverflingDistance();
         
-        mEventRenderer = eventRenderer;
-        mDayViewRenderer = dayViewRenderer;
+        mScrollController = mDependencyFactory.buildScrollingController(mEventBus);
+        mEventBus.register(new DayViewScrollEventHandler());
+        mEventRenderer = mDependencyFactory.buildEventRenderer();
+        mDayViewRenderer = mDependencyFactory.buildDayViewRenderer();
 
         init(context);
     }
@@ -606,9 +587,9 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
         setFocusableInTouchMode(true);
         setClickable(true);
 
-       mFirstDayOfWeek = mUtilFactory.buildDateUtils().getFirstDayOfWeek(context);
+       mFirstDayOfWeek = mDependencyFactory.buildDateUtils().getFirstDayOfWeek(context);
 
-        mCurrentTime = new Time(mUtilFactory.buildTimezoneUtils().getTimeZone(context, mTZUpdater));
+        mCurrentTime = new Time(mDependencyFactory.buildTimezoneUtils().getTimeZone(context, mTZUpdater));
         long currentTime = System.currentTimeMillis();
         mCurrentTime.set(currentTime);
         mTodayJulianDay = Time.getJulianDay(currentTime, mCurrentTime.gmtoff);
@@ -698,7 +679,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
         mPopupView.setOnClickListener(this);
         // Catch long clicks for creating a new event
 
-        mBaseDate = new Time(mUtilFactory.buildTimezoneUtils().getTimeZone(context, mTZUpdater));
+        mBaseDate = new Time(mDependencyFactory.buildTimezoneUtils().getTimeZone(context, mTZUpdater));
         long millis = System.currentTimeMillis();
         mBaseDate.set(millis);
 
@@ -723,7 +704,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
         initAccessibilityVariables();
         // Don't understand what this otherPreference is for. it's never set
         // anywhere. Historical, maybe?
-        // if(mUtilFactory.buildPreferencesUtils().getSharedPreference(mContext,
+        // if(mDependencyFactory.buildPreferencesUtils().getSharedPreference(mContext,
         // OtherPreferences.KEY_OTHER_1, false)) {
         // mFutureBgColor = 0;
         // } else {
@@ -732,7 +713,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
         mIs24HourFormat = DateFormat.is24HourFormat(mContext);
         mHourStrs = mIs24HourFormat ? mDayViewResources.get24Hours() : mDayViewResources
                 .get12HoursNoAmPm();
-        mFirstDayOfWeek = mUtilFactory.buildDateUtils().getFirstDayOfWeek(mContext);
+        mFirstDayOfWeek = mDependencyFactory.buildDateUtils().getFirstDayOfWeek(mContext);
         mLastSelectionDayForAccessibility = 0;
         mLastSelectionHourForAccessibility = 0;
         mLastSelectedEventForAccessibility = null;
@@ -1032,7 +1013,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
     private void remeasure(int width, int height) {
         // Shrink to fit available space but make sure we can display at least
         // two events
-        mMaxUnexpandedAllDayHeight = (int) (mDayViewResources.getMinUnexpandedAllDayEventHeight() * 4);
+        mMaxUnexpandedAllDayHeight = (int) (mDayViewResources.getMinUnexpandedAllDayEventHeight() * 1);
         mMaxUnexpandedAllDayHeight = Math.min(mMaxUnexpandedAllDayHeight, height / 6);
         mMaxUnexpandedAllDayHeight = Math.max(mMaxUnexpandedAllDayHeight,
                 (int) mDayViewResources.getMinUnexpandedAllDayEventHeight() * 2);
@@ -1408,7 +1389,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
                 flags |= DateUtils.FORMAT_24HOUR;
             }
         }
-        when = mUtilFactory.buildTimezoneUtils().formatDateRange(mContext, calEvent.getStartMillis(),
+        when = mDependencyFactory.buildTimezoneUtils().formatDateRange(mContext, calEvent.getStartMillis(),
                 calEvent.getEndMillis(), flags);
         b.append(when);
         b.append(PERIOD_SPACE);
@@ -1641,7 +1622,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
         mSelectedEvents.clear();
 
         // The start date is the beginning of the week at 12am
-        Time weekStart = new Time(mUtilFactory.buildTimezoneUtils().getTimeZone(mContext,
+        Time weekStart = new Time(mDependencyFactory.buildTimezoneUtils().getTimeZone(mContext,
                 mTZUpdater));
         weekStart.set(mBaseDate);
         weekStart.hour = 0;
@@ -1811,7 +1792,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
         // restore to having no clip
         canvas.restore();
 
-        if ((mTouchMode & TOUCH_MODE_HSCROLL) != 0) {
+        if (mScrollController.isHorizontalScrolling()) {
             float xTranslate;
             if (mViewStartX > 0) {
                 xTranslate = mViewWidth;
@@ -1825,7 +1806,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
             DayView nextView = (DayView) mViewSwitcher.getNextView();
 
             // Prevent infinite recursive calls to onDraw().
-            nextView.mTouchMode = TOUCH_MODE_INITIAL_STATE;
+            nextView.mScrollController.reset();
 
             nextView.onDraw(canvas);
             // Move it back for this view
@@ -2027,9 +2008,9 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
                 }
             } else {
                 final int column = day % 7;
-                if (mUtilFactory.buildDateUtils().isSaturday(column, mFirstDayOfWeek)) {
+                if (mDependencyFactory.buildDateUtils().isSaturday(column, mFirstDayOfWeek)) {
                     color = mDayViewResources.getWeekSaturdayColor();
-                } else if (mUtilFactory.buildDateUtils().isSunday(column, mFirstDayOfWeek)) {
+                } else if (mDependencyFactory.buildDateUtils().isSunday(column, mFirstDayOfWeek)) {
                     color = mDayViewResources.getWeekSundayColor();
                 }
             }
@@ -3002,7 +2983,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
         if (DateFormat.is24HourFormat(mContext)) {
             flags |= DateUtils.FORMAT_24HOUR;
         }
-        String timeRange = mUtilFactory.buildTimezoneUtils().formatDateRange(mContext,
+        String timeRange = mDependencyFactory.buildTimezoneUtils().formatDateRange(mContext,
                 event.getStartMillis(), event.getEndMillis(),
                 flags);
         TextView timeView = (TextView) mPopupView.findViewById(mDayViewResources.getEventPopupTimeTextFieldID());
@@ -3021,7 +3002,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
     // The following routines are called from the parent activity when certain
     // touch events occur.
     private void doDown(MotionEvent ev) {
-        mTouchMode = TOUCH_MODE_DOWN;
+        mScrollController.reset();
         mViewStartX = 0;
         mOnFlingCalled = false;
         mHandler.removeCallbacks(mContinueScroll);
@@ -3319,18 +3300,14 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
 
     private void doScroll(MotionEvent e1, MotionEvent e2, float deltaX, float deltaY) {
         cancelAnimation();
-        if (mStartingScroll) {
-            mInitialScrollX = 0;
-            mInitialScrollY = 0;
-            mStartingScroll = false;
-        }
-
-        mInitialScrollX += deltaX;
-        mInitialScrollY += deltaY;
-        int distanceX = (int) mInitialScrollX;
-        int distanceY = (int) mInitialScrollY;
-
+        
         final float focusY = getAverageY(e2);
+        final float focusX = getAverageX(e2);
+
+        
+        mScrollController.scrolled(focusX, focusY, deltaX, deltaY);
+
+        
         if (mRecalCenterHour) {
             // Calculate the hour that correspond to the average of the Y touch
             // points
@@ -3342,75 +3319,37 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
 
         // If we haven't figured out the predominant scroll direction yet,
         // then do it now.
-        if (mTouchMode == TOUCH_MODE_DOWN) {
+        int distanceX = (int)mScrollController.getCumulativeScrollX();
+        int distanceY = (int)mScrollController.getCumulativeScrollY();
+        if (!mScrollController.isHorizontalScrolling() && !mScrollController.isVerticalScrolling()) {
             int absDistanceX = Math.abs(distanceX);
             int absDistanceY = Math.abs(distanceY);
-            mScrollStartY = mViewStartY;
-            mPreviousDirection = 0;
+            
 
             if (absDistanceX > absDistanceY) {
                 int slopFactor = mScaleGestureDetector.isInProgress() ? 20 : 2;
                 if (absDistanceX > mScaledPagingTouchSlop * slopFactor) {
-                    mTouchMode = TOUCH_MODE_HSCROLL;
-                    mViewStartX = distanceX;
-                    initNextView(-mViewStartX);
+                    mScrollController.startedHorizontalScrolling(HorizontalScrollDirection.resolveForDistance(distanceX));
                 }
             } else {
-                mTouchMode = TOUCH_MODE_VSCROLL;
+                mScrollController.startedVerticalScrolling();
             }
-        } else if ((mTouchMode & TOUCH_MODE_HSCROLL) != 0) {
+        } else if (mScrollController.isHorizontalScrolling()) {
             // We are already scrolling horizontally, so check if we
             // changed the direction of scrolling so that the other week
             // is now visible.
-            mViewStartX = distanceX;
+            
             if (distanceX != 0) {
-                int direction = (distanceX > 0) ? 1 : -1;
-                if (direction != mPreviousDirection) {
-                    // The user has switched the direction of scrolling
-                    // so re-init the next view
-                    initNextView(-mViewStartX);
-                    mPreviousDirection = direction;
+                HorizontalScrollDirection direction = HorizontalScrollDirection.resolveForDistance(distanceX);
+                //can't be null, we know distanceX != 0
+                
+                
+                if (direction != mScrollController.getHorizontalScrollDirection()) {
+                    mScrollController.startedHorizontalScrolling(direction);
                 }
             }
         }
 
-        if ((mTouchMode & TOUCH_MODE_VSCROLL) != 0) {
-            // Calculate the top of the visible region in the calendar grid.
-            // Increasing/decrease this will scroll the calendar grid up/down.
-            mViewStartY = (int) ((mGestureCenterHour * (mCellHeight + DAY_GAP))
-                    - focusY + mDayViewResources.getDayHeaderHeight(mNumDays) + mAlldayHeight);
-
-            // If dragging while already at the end, do a glow
-            final int pulledToY = (int) (mScrollStartY + deltaY);
-            if (pulledToY < 0) {
-                mEdgeEffectTop.onPull(deltaY / mViewHeight);
-                if (!mEdgeEffectBottom.isFinished()) {
-                    mEdgeEffectBottom.onRelease();
-                }
-            } else if (pulledToY > mMaxViewStartY) {
-                mEdgeEffectBottom.onPull(deltaY / mViewHeight);
-                if (!mEdgeEffectTop.isFinished()) {
-                    mEdgeEffectTop.onRelease();
-                }
-            }
-
-            if (mViewStartY < 0) {
-                mViewStartY = 0;
-                mRecalCenterHour = true;
-            } else if (mViewStartY > mMaxViewStartY) {
-                mViewStartY = mMaxViewStartY;
-                mRecalCenterHour = true;
-            }
-            if (mRecalCenterHour) {
-                // Calculate the hour that correspond to the average of the Y
-                // touch points
-                mGestureCenterHour = (mViewStartY + focusY
-                        - mDayViewResources.getDayHeaderHeight(mNumDays) - mAlldayHeight)
-                        / (mCellHeight + DAY_GAP);
-                mRecalCenterHour = false;
-            }
-            computeFirstHour();
-        }
 
         mScrolling = true;
 
@@ -3423,6 +3362,16 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
         float focusY = 0;
         for (int i = 0; i < count; i++) {
             focusY += me.getY(i);
+        }
+        focusY /= count;
+        return focusY;
+    }
+    
+    private float getAverageX(MotionEvent me) {
+        int count = me.getPointerCount();
+        float focusY = 0;
+        for (int i = 0; i < count; i++) {
+            focusY += me.getX(i);
         }
         focusY /= count;
         return focusY;
@@ -3449,10 +3398,10 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
 
         mOnFlingCalled = true;
 
-        if ((mTouchMode & TOUCH_MODE_HSCROLL) != 0) {
+        if (mScrollController.isHorizontalScrolling()) {
             // Horizontal fling.
             // initNextView(deltaX);
-            mTouchMode = TOUCH_MODE_INITIAL_STATE;
+            mScrollController.reset();
             if (DEBUG)
                 Log.d(TAG, "doFling: velocityX " + velocityX);
             int deltaX = (int) e2.getX() - (int) e1.getX();
@@ -3461,37 +3410,38 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
             return;
         }
 
-        if ((mTouchMode & TOUCH_MODE_VSCROLL) == 0) {
+        if (mScrollController.isVerticalScrolling()) {
+            // Vertical fling.
+            mScrollController.reset();
+            mViewStartX = 0;
+
+            if (DEBUG) {
+                Log.d(TAG, "doFling: mViewStartY" + mViewStartY + " velocityY " + velocityY);
+            }
+
+            // Continue scrolling vertically
+            mScrolling = true;
+            mScroller.fling(0 /* startX */, mViewStartY /* startY */, 0 /* velocityX */,
+                    (int) -velocityY, 0 /* minX */, 0 /* maxX */, 0 /* minY */,
+                    mMaxViewStartY /* maxY */, OVERFLING_DISTANCE, OVERFLING_DISTANCE);
+
+            // When flinging down, show a glow when it hits the end only if it
+            // wasn't started at the top
+            if (velocityY > 0 && mViewStartY != 0) {
+                mCallEdgeEffectOnAbsorb = true;
+            }
+            // When flinging up, show a glow when it hits the end only if it wasn't
+            // started at the bottom
+            else if (velocityY < 0 && mViewStartY != mMaxViewStartY) {
+                mCallEdgeEffectOnAbsorb = true;
+            }
+            mHandler.post(mContinueScroll);
+
+        } else {
             if (DEBUG)
                 Log.d(TAG, "doFling: no fling");
-            return;
         }
 
-        // Vertical fling.
-        mTouchMode = TOUCH_MODE_INITIAL_STATE;
-        mViewStartX = 0;
-
-        if (DEBUG) {
-            Log.d(TAG, "doFling: mViewStartY" + mViewStartY + " velocityY " + velocityY);
-        }
-
-        // Continue scrolling vertically
-        mScrolling = true;
-        mScroller.fling(0 /* startX */, mViewStartY /* startY */, 0 /* velocityX */,
-                (int) -velocityY, 0 /* minX */, 0 /* maxX */, 0 /* minY */,
-                mMaxViewStartY /* maxY */, OVERFLING_DISTANCE, OVERFLING_DISTANCE);
-
-        // When flinging down, show a glow when it hits the end only if it
-        // wasn't started at the top
-        if (velocityY > 0 && mViewStartY != 0) {
-            mCallEdgeEffectOnAbsorb = true;
-        }
-        // When flinging up, show a glow when it hits the end only if it wasn't
-        // started at the bottom
-        else if (velocityY < 0 && mViewStartY != mMaxViewStartY) {
-            mCallEdgeEffectOnAbsorb = true;
-        }
-        mHandler.post(mContinueScroll);
     }
 
     private boolean initNextView(int deltaX) {
@@ -3585,9 +3535,8 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
     // ScaleGestureDetector.OnScaleGestureListener
     public void onScaleEnd(ScaleGestureDetector detector) {
         mScrollStartY = mViewStartY;
-        mInitialScrollY = 0;
-        mInitialScrollX = 0;
         mStartingSpanY = 0;
+        mScrollController.reset();
     }
 
     @Override
@@ -3603,13 +3552,13 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
             mRecalCenterHour = true;
         }
 
-        if ((mTouchMode & TOUCH_MODE_HSCROLL) == 0) {
+        if (!mScrollController.isHorizontalScrolling()) {
             mScaleGestureDetector.onTouchEvent(ev);
         }
 
         switch (action) {
             case MotionEvent.ACTION_DOWN:
-                mStartingScroll = true;
+                mScrollController.reset();
                 if (DEBUG) {
                     Log.e(TAG, "ACTION_DOWN ev.getDownTime = " + ev.getDownTime() + " Cnt="
                             + ev.getPointerCount());
@@ -3637,7 +3586,6 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
                     Log.e(TAG, "ACTION_UP Cnt=" + ev.getPointerCount() + mHandleActionUp);
                 mEdgeEffectTop.onRelease();
                 mEdgeEffectBottom.onRelease();
-                mStartingScroll = false;
                 mGestureDetector.onTouchEvent(ev);
                 if (!mHandleActionUp) {
                     mHandleActionUp = true;
@@ -3658,8 +3606,8 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
                     invalidate();
                 }
 
-                if ((mTouchMode & TOUCH_MODE_HSCROLL) != 0) {
-                    mTouchMode = TOUCH_MODE_INITIAL_STATE;
+                if (mScrollController.isHorizontalScrolling()) {
+                    mScrollController.reset();
                     if (Math.abs(mViewStartX) > mHorizontalSnapBackThreshold) {
                         // The user has gone beyond the threshold so switch
                         // views
@@ -3989,7 +3937,7 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
             mHandler.removeCallbacks(mUpdateCurrentTime);
         }
 
-        mUtilFactory.buildPreferencesUtils().setSharedPreference(mContext, KEY_DEFAULT_CELL_HEIGHT,
+        mDependencyFactory.buildPreferencesUtils().setSharedPreference(mContext, KEY_DEFAULT_CELL_HEIGHT,
                 mCellHeight);
         // Clear all click animations
         eventClickCleanup();
@@ -4264,4 +4212,64 @@ public class DayView extends View implements ScaleGestureDetector.OnScaleGesture
         
     }
 
+    
+    public class DayViewScrollEventHandler {
+        
+        @Subscribe
+        public void handleHorizontalScrollStarted(HorizontalScrollingStartedEvent event){
+            mScrollStartY = mViewStartY;
+            initNextView(-event.getDirection().getDirectionConstant());
+        }
+        
+        @Subscribe
+        public void handleVerticalScrollStarted(VerticalScrollingStartedEvent event){
+            mScrollStartY = mViewStartY;
+        }
+        
+        
+        @Subscribe
+        public void handleScroll(ScrollEvent e){
+            if(mScrollController.isHorizontalScrolling()){
+                mViewStartX = (int)e.getCumulativeScrollX();    
+            } else if(mScrollController.isVerticalScrolling()){
+                // Calculate the top of the visible region in the calendar grid.
+                // Increasing/decrease this will scroll the calendar grid up/down.
+                mViewStartY = (int) ((mGestureCenterHour * (mCellHeight + DAY_GAP)) - e.getCurrentY() + mDayViewResources.getDayHeaderHeight(mNumDays) + mAlldayHeight);
+
+                // If dragging while already at the end, do a glow
+                final int pulledToY = (int) (mScrollStartY + e.getScrollDeltaY());
+                if (pulledToY < 0) {
+                    mEdgeEffectTop.onPull(e.getScrollDeltaY() / mViewHeight);
+                    if (!mEdgeEffectBottom.isFinished()) {
+                        mEdgeEffectBottom.onRelease();
+                    }
+                } else if (pulledToY > mMaxViewStartY) {
+                    mEdgeEffectBottom.onPull(e.getScrollDeltaY() / mViewHeight);
+                    if (!mEdgeEffectTop.isFinished()) {
+                        mEdgeEffectTop.onRelease();
+                    }
+                }
+
+                if (mViewStartY < 0) {
+                    mViewStartY = 0;
+                    mRecalCenterHour = true;
+                } else if (mViewStartY > mMaxViewStartY) {
+                    mViewStartY = mMaxViewStartY;
+                    mRecalCenterHour = true;
+                }
+                if (mRecalCenterHour) {
+                    // Calculate the hour that correspond to the average of the Y
+                    // touch points
+                    mGestureCenterHour = (mViewStartY + e.getCurrentY()
+                            - mDayViewResources.getDayHeaderHeight(mNumDays) - mAlldayHeight)
+                            / (mCellHeight + DAY_GAP);
+                    mRecalCenterHour = false;
+                }
+                computeFirstHour();
+            }
+            
+        }
+
+    }
+    
 }

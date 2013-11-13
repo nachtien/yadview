@@ -35,12 +35,11 @@ import com.google.code.yadview.events.EditEventEvent;
 import com.google.code.yadview.events.ShowDateInAgendaViewEvent;
 import com.google.code.yadview.events.ShowDateInDayViewEvent;
 import com.google.code.yadview.events.ViewEventEvent;
-import com.google.code.yadview.impl.DefaultUtilFactory;
 
 public class DayViewOnCreateContextMenuListener implements OnCreateContextMenuListener {
 
     private DayView mDayView;
-    private DefaultUtilFactory mUtilFactory;
+    private DayViewDependencyFactory mUtilFactory;
     private Context mContext;
     private DayViewResources mDayViewResources;
     private final ContextMenuHandler mContextMenuHandler;
@@ -56,10 +55,10 @@ public class DayViewOnCreateContextMenuListener implements OnCreateContextMenuLi
     
     
     
-    public DayViewOnCreateContextMenuListener(Context ctx, DayView dv, DefaultUtilFactory utilFactory, DayViewResources resources, EventResource eventResource) {
+    public DayViewOnCreateContextMenuListener(Context ctx, DayView dv, DayViewDependencyFactory defaultDayViewFactory, DayViewResources resources, EventResource eventResource) {
         mContext = ctx;
         mDayView = dv;
-        mUtilFactory = utilFactory;
+        mUtilFactory = defaultDayViewFactory;
         mDayViewResources = resources;
         mEventResource = eventResource;
         mContextMenuHandler = new ContextMenuHandler();

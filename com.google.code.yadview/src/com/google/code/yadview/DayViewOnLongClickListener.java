@@ -21,8 +21,8 @@ limitations under the License.
 package com.google.code.yadview;
 
 import com.google.code.yadview.events.CreateEventEvent;
+import com.google.code.yadview.impl.DefaultDayViewFactory;
 import com.google.code.yadview.impl.DefaultDayViewResources;
-import com.google.code.yadview.impl.DefaultUtilFactory;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -37,12 +37,12 @@ public class DayViewOnLongClickListener implements OnLongClickListener {
     private Context mContext;
     private DayView mDayView;
     private DayViewResources mDayViewResources;
-    private DefaultUtilFactory mUtilFactory;
+    private DefaultDayViewFactory mDependencyFactory;
 
-    public DayViewOnLongClickListener(Context context, DayView dv, DayViewResources resources, DefaultUtilFactory utilFactory) {
+    public DayViewOnLongClickListener(Context context, DayView dv, DayViewResources resources, DefaultDayViewFactory defaultDayViewFactory) {
         mContext = context;
         mDayView = dv;
-        mUtilFactory = utilFactory;
+        mDependencyFactory = defaultDayViewFactory;
         mDayViewResources = resources;
     }
 
@@ -57,7 +57,7 @@ public class DayViewOnLongClickListener implements OnLongClickListener {
             flags |= DateUtils.FORMAT_24HOUR;
         }
 
-        new AlertDialog.Builder(mContext).setTitle(mUtilFactory.buildTimezoneUtils().formatDateRange(mContext, time, time,
+        new AlertDialog.Builder(mContext).setTitle(mDependencyFactory.buildTimezoneUtils().formatDateRange(mContext, time, time,
                 flags))
                 .setItems(mDayViewResources.getLongPressItems(), new DialogInterface.OnClickListener() {
                     @Override

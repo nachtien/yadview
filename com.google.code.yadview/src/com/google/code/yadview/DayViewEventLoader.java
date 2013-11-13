@@ -17,7 +17,7 @@ limitations under the License.
  
  */
 
-package com.google.code.yadview.impl;
+package com.google.code.yadview;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,11 +28,8 @@ import android.os.Handler;
 import android.os.Process;
 import android.util.Log;
 
-import com.google.code.yadview.Event;
-import com.google.code.yadview.EventResource;
-import com.google.code.yadview.Predicate;
 
-public class DefaultEventLoader {
+public class DayViewEventLoader {
 
     private Handler mHandler = new Handler();
     private AtomicInteger mSequenceNumber = new AtomicInteger();
@@ -42,15 +39,15 @@ public class DefaultEventLoader {
     private EventResource mEventResource;
 
     private static interface LoadRequest {
-        public void processRequest(DefaultEventLoader eventLoader);
-        public void skipRequest(DefaultEventLoader eventLoader);
+        public void processRequest(DayViewEventLoader eventLoader);
+        public void skipRequest(DayViewEventLoader eventLoader);
     }
 
     private static class ShutdownRequest implements LoadRequest {
-        public void processRequest(DefaultEventLoader eventLoader) {
+        public void processRequest(DayViewEventLoader eventLoader) {
         }
 
-        public void skipRequest(DefaultEventLoader eventLoader) {
+        public void skipRequest(DayViewEventLoader eventLoader) {
         }
     }
 
@@ -83,7 +80,7 @@ public class DefaultEventLoader {
         }
 
         @Override
-        public void processRequest(DefaultEventLoader eventLoader)
+        public void processRequest(DayViewEventLoader eventLoader)
         {
         	
         	//which DAYS have events
@@ -99,7 +96,7 @@ public class DefaultEventLoader {
         }
 
         @Override
-        public void skipRequest(DefaultEventLoader eventLoader) {
+        public void skipRequest(DayViewEventLoader eventLoader) {
         }
     }
 
@@ -124,7 +121,7 @@ public class DefaultEventLoader {
             this.mEventResource = eventResource;
         }
 
-        public void processRequest(final DefaultEventLoader eventLoader) {
+        public void processRequest(final DayViewEventLoader eventLoader) {
             
             Predicate continueLoadingPredicate = new Predicate() {
                 @Override
@@ -144,16 +141,16 @@ public class DefaultEventLoader {
             }
         }
 
-        public void skipRequest(DefaultEventLoader eventLoader) {
+        public void skipRequest(DayViewEventLoader eventLoader) {
             eventLoader.mHandler.post(cancelCallback);
         }
     }
 
     private static class LoaderThread extends Thread {
         LinkedBlockingQueue<LoadRequest> mQueue;
-        DefaultEventLoader mEventLoader;
+        DayViewEventLoader mEventLoader;
 
-        public LoaderThread(LinkedBlockingQueue<LoadRequest> queue, DefaultEventLoader eventLoader) {
+        public LoaderThread(LinkedBlockingQueue<LoadRequest> queue, DayViewEventLoader eventLoader) {
             mQueue = queue;
             mEventLoader = eventLoader;
         }
@@ -198,7 +195,7 @@ public class DefaultEventLoader {
         }
     }
 
-    public DefaultEventLoader(EventResource eventResource) {
+    public DayViewEventLoader(EventResource eventResource) {
         mLoaderQueue = new LinkedBlockingQueue<LoadRequest>();
         mEventResource = eventResource;
     }
