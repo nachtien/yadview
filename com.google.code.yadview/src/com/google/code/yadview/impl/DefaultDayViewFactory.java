@@ -70,7 +70,7 @@ public class DefaultDayViewFactory implements ViewFactory, DayViewDependencyFact
     @Override
     public View makeView() {
         //using alternate renderer - use alternate dayview resources
-        DayView dv = new DayView(mContext, mViewSwitcher, 1, mEventLoader, mResources, null);
+        DayView dv = new DayView(mContext, mViewSwitcher, 1, mEventLoader, mResources, this);
         dv.setLayoutParams(new ViewSwitcher.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         
         //matching previous behaviour
